@@ -2,8 +2,8 @@ from . import *
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
 
-project_name = "Ilan's Cool Project Template"
-net_id = "Ilan Filonenko: if56"
+project_name = "Changing-Views"
+net_id = "Yuji Akimoto (ya242) , Benjamin Edwards (bje43) , Jacqueline Wen (jzw22) , Young Kim (yk465) , Zachary Brienza (zb43)"
 
 @irsystem.route('/', methods=['GET'])
 def search():
