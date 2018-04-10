@@ -3,8 +3,10 @@ Generate word embeddings using GloVe: https://nlp.stanford.edu/projects/glove/
 """
 
 import csv
-import pandas as pd
 import numpy as np
+import os
+import pandas as pd
+import subprocess
 import zipfile
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -16,6 +18,9 @@ class GloVe:
         dict:  dictionary mapping words to index
     """
     def __init__(self, file_path):
+        if not os.path.exists(file_path):
+            print('Downloading pre-trained word vectors')
+            subprocess.check_call(['bash','-c', 'wget -P ../data/ http://nlp.stanford.edu/data/glove.6B.zip'])
         print('Loading word embeddings...')
         glove = zipfile.ZipFile(file_path, 'r')
         words = pd.read_table(glove.open('glove.6B.50d.txt'), sep=" ", index_col=0, header=None, quoting=csv.QUOTE_NONE)
