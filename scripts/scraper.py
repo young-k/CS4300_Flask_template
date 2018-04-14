@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import lxml
 
 def write_sample_to_file(num_posts, num_comments):
-  f = open("sample.txt", "w+")
+  f = open("data.txt", "w+")
 
   reddit = praw.Reddit(client_id='wQaHdUWqKKgaLQ',
                        client_secret='mIDBYtZGLe_Pve7RiGcw2VWc-y4',
@@ -38,4 +38,4 @@ def write_sample_to_file(num_posts, num_comments):
   f.close()
 
 if __name__ == "__main__":
-  write_sample_to_file(20, 20)
+  write_sample_to_file(5000, 25)
