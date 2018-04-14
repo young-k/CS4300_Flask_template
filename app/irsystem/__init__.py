@@ -5,3 +5,8 @@ irsystem = Blueprint('irsystem', __name__, url_prefix='/',static_folder='static'
 
 # Import all controllers
 from controllers.search_controller import *
+
+# Import models
+from models.comment import *
+from models.submission import *
+from models.user import *
