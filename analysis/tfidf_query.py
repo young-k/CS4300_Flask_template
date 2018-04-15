@@ -4,37 +4,48 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from word_embeddings import GloVe
 
 with open('../data/sample.json', 'r') as f:
-    data = json.load(f)
+    sample_data = json.load(f)
 
-documents = []
-for i in range(100):
-    title = data[i]['title']
-    comments = ' '.join([c['text'] for c in data[i]['comments']])
-    documents.append(' '.join([title, comments]))
 
-vectorizer = TfidfVectorizer(stop_words='english', min_df=3).fit(documents)
-dt_matrix = vectorizer.transform(documents).toarray()
-vocab = vectorizer.get_feature_names()
+def find_keywords(data, n=10):
+    documents = []
+    for i, sample in enumerate(data):
+        title = sample['title']
+        comments = ' '.join(c['text'] for c in sample['comments'])
+        documents.append(' '.join([title, comments]))
 
-for i in range(100):
-    vec = dt_matrix[i]
-    idx = np.argsort(-1 * vec)[:10]
-    kws = [vocab[j] for j in idx]
-    data[i]['keywords'] = set(kws)
+    vectorizer = TfidfVectorizer(min_df=3, stop_words='english').fit(documents)
+    dt_matrix = vectorizer.transform(documents).toarray()
+    vocab = vectorizer.get_feature_names()
+    argsort = np.argsort(-1 * dt_matrix, axis=1)
 
-model = GloVe('../data/glove.6B.zip')
+    for j, sample in enumerate(data):
+        keywords = [vocab[j] for j in argsort[j, :n]]
+        sample['keywords'] = set(keywords)
+    return data
 
-print('Press Ctrl+C to quit.')
-while True:
-    try:
-        query = input('Query: ')
-        expanded = model.nearest_neighbors(query, n=10)
-        relevant = [post['title'] for post in data if len(set(expanded).intersection(post['keywords'])) > 0]
 
-        if len(relevant) == 0:
-            print('No relevant posts found.')
-        else:
-            for title in relevant:
-                print(title.replace('\n', ''))
-    except KeyboardInterrupt:
-        break
+sample_data = find_keywords(sample_data)
+glove = GloVe('../data/glove.6B.zip')
+
+
+def topic_search(keyword, data, model):
+    expanded = model.nearest_neighbors(keyword, n=10)
+    relevant = [post for post in data if len(set(expanded).intersection(post['keywords'])) > 0]
+    return relevant
+
+
+if __name__ == '__main__':
+    print('Press Ctrl+C to quit.')
+    while True:
+        try:
+            query = input('Query: ')
+            relevant_posts = topic_search(query, sample_data, glove)
+
+            if len(relevant_posts) == 0:
+                print('No relevant posts found.')
+            else:
+                for post in relevant_posts:
+                    print(post['title'].replace('\n', ''))
+        except KeyboardInterrupt:
+            break
