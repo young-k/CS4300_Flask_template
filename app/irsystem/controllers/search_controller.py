@@ -10,11 +10,11 @@ from . import *
 project_name = "Changing-Views"
 net_id = "Yuji Akimoto (ya242), Benjamin Edwards (bje43), Jacqueline Wen (jzw22), Young Kim (yk465), Zachary Brienza (zb43)"
 
-with open('./data/sample.json', 'r') as f:
+with open('./data/data.json', 'r') as f:
     data = json.load(f)
 
 data = find_keywords(data, n=10)
-glove = GloVe('./data/glove.6B.zip')
+glove = GloVe('./data/glove.6B.50d.txt')
 
 
 @irsystem.route('/', methods=['GET'])

@@ -7,7 +7,6 @@ import numpy as np
 import os
 import pandas as pd
 import subprocess
-import zipfile
 from sklearn.neighbors import KNeighborsClassifier
 
 
@@ -22,12 +21,11 @@ class GloVe:
             print('Downloading pre-trained word vectors')
             subprocess.check_call(['bash', '-c', 'wget -P ../data/ http://nlp.stanford.edu/data/glove.6B.zip'])
         print('Loading word embeddings...')
-        glove = zipfile.ZipFile(file_path, 'r')
-        words = pd.read_table(glove.open('glove.6B.50d.txt'), sep=" ", index_col=0, header=None, quoting=csv.QUOTE_NONE)
+        words = pd.read_table(file_path, sep=" ", index_col=0, header=None, quoting=csv.QUOTE_NONE)
         self.model = words.as_matrix()
         self.dict = {word: i for i, word in enumerate(words.index)}
         self.clf = KNeighborsClassifier(n_neighbors=10).fit(self.model, np.zeros(self.model.shape[0]))
-        self.vocab = np.array(list(self.dict.keys()))
+        self.vocab = np.array(sorted(self.dict, key=lambda k: self.dict[k]))
 
     def vectorize(self, word):
         if word in self.dict:

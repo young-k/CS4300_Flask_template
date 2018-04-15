@@ -1,17 +1,15 @@
+from __future__ import print_function
 import json
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from word_embeddings import GloVe
-
-with open('./data/sample.json', 'r') as f:
-    sample_data = json.load(f)
 
 
 def find_keywords(data, n=10):
     documents = []
     for i, sample in enumerate(data):
         title = sample['title']
-        comments = ' '.join(c['text'] for c in sample['comments'])
+        comments = ' '.join(c['comment'] for c in sample['comments'])
         documents.append(' '.join([title, comments]))
 
     vectorizer = TfidfVectorizer(min_df=3, stop_words='english').fit(documents)
@@ -25,10 +23,6 @@ def find_keywords(data, n=10):
     return data
 
 
-sample_data = find_keywords(sample_data)
-glove = GloVe('../data/glove.6B.zip')
-
-
 def topic_search(keyword, data, model):
     expanded = model.nearest_neighbors(keyword, n=10)
     relevant = [post for post in data if len(set(expanded).intersection(post['keywords'])) > 0]
@@ -36,10 +30,16 @@ def topic_search(keyword, data, model):
 
 
 if __name__ == '__main__':
+    with open('../data/data.json', 'r') as f:
+        sample_data = json.load(f)
+
+    sample_data = find_keywords(sample_data)
+    glove = GloVe('../data/glove.6B.50d.txt')
+
     print('Press Ctrl+C to quit.')
     while True:
         try:
-            query = input('Query: ')
+            query = raw_input('Query: ')
             relevant_posts = topic_search(query, sample_data, glove)
 
             if len(relevant_posts) == 0:
