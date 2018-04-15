@@ -1,6 +1,8 @@
 venv
 .env
 *.pyc
+*.txt
+*.zip
 migrations 
 vagrant/.vagrant
 vagrant/site.retry
