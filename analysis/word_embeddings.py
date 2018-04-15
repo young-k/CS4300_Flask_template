@@ -35,8 +35,8 @@ class GloVe:
             return np.zeros(50)
 
     def nearest_neighbors(self, query, n=3):
-        if type(query) == str:
-            vector = self.vectorize(query).reshape(1, -1)
+        if type(query) == unicode:
+            vector = self.vectorize(str(query)).reshape(1, -1)
         elif type(query) == np.ndarray:
             vector = query.reshape(1, -1)
         else:
