@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from word_embeddings import GloVe
 
-with open('../data/sample.json', 'r') as f:
+with open('./data/sample.json', 'r') as f:
     sample_data = json.load(f)
 
 
