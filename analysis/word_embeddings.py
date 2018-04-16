@@ -18,9 +18,9 @@ class GloVe:
     """
     def __init__(self, file_path):
         print(file_path)
-        # if not os.path.exists(file_path):
-        #     print('Downloading pre-trained word vectors')
-        #     subprocess.check_call(['bash', '-c', 'wget -P ../data/ http://nlp.stanford.edu/data/glove.6B.zip'])
+        if not os.path.exists(file_path):
+            print('Downloading pre-trained word vectors')
+            subprocess.check_call(['bash', '-c', 'wget -P ../data/ http://nlp.stanford.edu/data/glove.6B.zip'])
         print('Loading word embeddings...')
         words = pd.read_table(file_path, sep=" ", index_col=0, header=None, quoting=csv.QUOTE_NONE)
         self.model = words.as_matrix()

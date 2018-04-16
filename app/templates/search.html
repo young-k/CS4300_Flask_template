@@ -1,7 +1,8 @@
 <html>
     <head>
+        <title> ChangingViews </title>
         <link rel="stylesheet" href="/static/bootstrap.min.css">
-        <link rel="stylesheet" href="/static/main.css">
+        
         <!-- Latest compiled and minified CSS -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
@@ -12,7 +13,7 @@
 
 <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
+        <link rel="stylesheet" href="/static/main.css">
     </head>
     <body>
         <div class="topcorner">
@@ -27,22 +28,23 @@
                 <label id="search_label"> Change my view on </label>
                 <input id="input" type="text" name="search" class="form-control" placeholder="Topic">
             </div>
-            <button type="submit" class="btn btn-info"> Go! </button>
+            <button type="submit" class="btn"> Go! </button>
         </form>
         <form class="form-inline global-search">
         {% if data %}
             <h2>{{output_message}}</h2>
-            {% for d in range(2) %}  
+            {% for d in range(10) %}  
             <div class="container">
                 <br>
-                <div class='jumbotron jumbotron-fluid'>
-                    <h2 class="c_title" data-toggle="collapse" data-target="#collapseExample{{d}}">{{data[d]['title']}}</h2><br>
+                <div class='jumbotron'>
+                    <h3 class="c_title" data-toggle="collapse" data-target="#collapseExample{{d}}">{{data[d]['title']}}</h3><br>
                     <!-- <p> {{data[d]['keywords']}} </p> -->
-                    <div class="collapse" id="collapseExample{{d}}">
+                    <div class="collapsing" id="collapseExample{{d}}">
                         <ul class = "list-group">
                         {% for c in data[d]['comments'][0:5] %}  
-                            <li class = "list-group-item text-left comment" > 
-                                {{c['comment']}} 
+                            <li class = "list-group-item text-left comment preview"> 
+                                <p class="comment-txt">{{c['comment']}}</p>
+                                <p class="read-more"><a class="button">Read More</a></p>
                             </li>
                         {% endfor %}
                         </ul>
