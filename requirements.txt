@@ -39,8 +39,6 @@ numpy==1.12.1
 oauth2client==4.1.2
 oauthlib==2.0.2
 Pillow==2.9.0
-pyacoustid==1.1.5
-pyacrcloud==1.0.0
 pyasn1==0.4.2
 pyasn1-modules==0.0.10
 pycparser==2.17
