@@ -1,0 +1,1 @@
+$(".c_title").trigger("click");

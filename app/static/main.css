@@ -9,7 +9,7 @@ padding: 20px 0;
 text-align:center;
 }
 body {
-padding-top: 15%;
+padding-top: 5%;
 padding-bottom: 15px;
 }
 .global-search {
@@ -35,4 +35,26 @@ border: none
 }
 .step-links a{
 color: #4285F4;
+}
+#search_label{
+	font-size: 24px;
+	padding-right: 8px;
+}
+@font-face {
+    font-family: Static;
+    src: url(static.otf);
+}
+.left-title{
+	color: #00D4FF;
+}
+#title{
+	font-family: Static;
+	font-size: 60px;
+}
+.p_top{
+	display:inline-block;
+	padding-top: 0px;
+}
+.comment{
+	margin-top: 10px;
 }

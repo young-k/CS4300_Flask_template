@@ -2,6 +2,17 @@
     <head>
         <link rel="stylesheet" href="/static/bootstrap.min.css">
         <link rel="stylesheet" href="/static/main.css">
+        <!-- Latest compiled and minified CSS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script type=text/javascript src="{{url_for('static', filename='js/main.js')}}"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
     </head>
     <body>
         <div class="topcorner">
@@ -9,28 +20,35 @@
             <p>Student Name: ({{ netid }})</p>
         </div>
         <form class="form-inline global-search">
-            <h1 style="font-size: 55px; font-family:Futura; color: #4285F4">
-                C
-                <font color=#EA4335>S</font>
-                <font color=#FBBC05>4</font>
-                3
-                <font color=#34A853>0</font>
-                <font color=#EA4335>0</font>
-            </h1>
-            
+            <h1 id="title" class="left-title"> Changing </h1>
+            <h1 id="title"> Views </h1>
             <br><br>
-            
-            <div class="form-group">
-                <input id="input" type="text" name="search" class="form-control" placeholder="Your Input">
+            <div class="form-group p_top">
+                <label id="search_label"> Change my view on </label>
+                <input id="input" type="text" name="search" class="form-control" placeholder="Topic">
             </div>
             <button type="submit" class="btn btn-info"> Go! </button>
         </form>
         <form class="form-inline global-search">
         {% if data %}
-            <h1>{{output_message}}</h1>
-            {% for d in data %}  
+            <h2>{{output_message}}</h2>
+            {% for d in range(2) %}  
+            <div class="container">
                 <br>
-                <p>{{d}}</p>
+                <div class='jumbotron jumbotron-fluid'>
+                    <h2 class="c_title" data-toggle="collapse" data-target="#collapseExample{{d}}">{{data[d]['title']}}</h2><br>
+                    <!-- <p> {{data[d]['keywords']}} </p> -->
+                    <div class="collapse" id="collapseExample{{d}}">
+                        <ul class = "list-group">
+                        {% for c in data[d]['comments'][0:5] %}  
+                            <li class = "list-group-item text-left comment" > 
+                                {{c['comment']}} 
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
         {% endif %}
         </form>
