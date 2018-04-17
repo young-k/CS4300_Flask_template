@@ -9,14 +9,15 @@ from tqdm import tqdm
 
 N_EPOCHS = 1000
 
-train = Loader('./data/training.csv')
-valid = Loader('./data/testing.csv')
+train = Loader('./data/training')
+valid = Loader('./data/testing')
 model = SiameseRNN()
 saver = tf.train.Saver()
 best = 0
 
 with tf.Session() as sess:
     init = tf.global_variables_initializer()
+    sess.run(init)
     sess.run(init)
     for n in tqdm(range(N_EPOCHS)):
         for i in range(train.n_batches):
@@ -35,3 +36,5 @@ with tf.Session() as sess:
             if acc_va > best:
                 best = acc_va
                 saver.save(sess, './models')
+            else:
+                saver.restore(sess, './models')
