@@ -20,12 +20,22 @@ def find_keywords(data, n=10):
     for j, sample in enumerate(data):
         keywords = [vocab[j] for j in argsort[j, :n]]
         sample['keywords'] = set(keywords)
-    return data
+    return data, dt_matrix, vectorizer.vocabulary_
 
 
-def topic_search(keyword, data, model):
+def topic_search(keyword, data, model, dt_matrix, vocab):
     expanded = model.nearest_neighbors(keyword, n=10)
-    relevant = [post for post in data if len(set(expanded).intersection(post['keywords'])) > 0]
+
+    def _is_relevant(sample_post):
+        return len(set(expanded).intersection(sample_post['keywords'])) > 0
+
+    def _relevance_score(sample_post):
+        overlap = set(expanded).intersection(sample_post['keywords'])
+        score = sum([dt_matrix[data.index(sample_post), vocab[word]] for word in overlap])
+        return score
+
+    relevant = [post for post in data if _is_relevant(post)]
+    relevant = sorted(relevant, key=_relevance_score, reverse=True)
     return relevant
 
 
@@ -33,14 +43,14 @@ if __name__ == '__main__':
     with open('../data/data.json', 'r') as f:
         sample_data = json.load(f)
 
-    sample_data = find_keywords(sample_data)
+    sample_data, doc_term_matrix, vocab_dict = find_keywords(sample_data)
     glove = GloVe('../data/glove.6B.50d.txt')
 
     print('Press Ctrl+C to quit.')
     while True:
         try:
             query = raw_input('Query: ')
-            relevant_posts = topic_search(query, sample_data, glove)
+            relevant_posts = topic_search(query, sample_data, glove, doc_term_matrix, vocab_dict)
 
             if len(relevant_posts) == 0:
                 print('No relevant posts found.')
