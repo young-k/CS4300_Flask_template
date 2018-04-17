@@ -112,13 +112,13 @@ class Loader(object):
         self.labels = self.labels[permutation]
 
         self.embeds1_b, self.embeds2_b = np.split(self.embeds1, self.n_batches), np.split(self.embeds2, self.n_batches)
-        self.labels = np.split(self.labels, self.n_batches)
+        self.labels_b = np.split(self.labels, self.n_batches)
 
     def next_batch(self):
         self.pointer = (self.pointer + 1) % self.n_batches
         if self.pointer == 0:
             self.create_batches()
-        return self.embeds1_b[self.pointer], self.embeds2_b[self.pointer], self.labels[self.pointer]
+        return self.embeds1_b[self.pointer], self.embeds2_b[self.pointer], self.labels_b[self.pointer]
 
 
 if __name__ == '__main__':
