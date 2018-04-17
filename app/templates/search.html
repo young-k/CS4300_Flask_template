@@ -32,21 +32,25 @@
         <form class="form-inline global-search">
             <h2>{{output_message}}</h2>
             <br>
-            {% if data %}
-            {% for d in range(10) %}  
+            {% if data|length > 0 %}
+            {% for d in range([10,data|length]|min) %}
             <div class="container">
                 <br>
-                <div class='jumbotron'>
+                <div class='jumbotron jumbotron-fluid'>
                     <h3 class="c_title" data-toggle="collapse" data-target="#collapseExample{{d}}">{{data[d]['title']}}</h3><br>
                     <!-- <p> {{data[d]['keywords']}} </p> -->
                     <div class="collapsing" id="collapseExample{{d}}">
                         <ul class = "list-group">
-                            {% for c in data[d]['comments'][0:5] %}  
-                            <li class = "list-group-item text-left comment preview"> 
+                            {%if data[d]['comments'] |length >=5 %}
+                            {% for c in data[d]['comments'][0:5] %}
+                            <li class = "list-group-item text-left comment preview">
                                 <p class="comment-txt">{{c['comment']}}</p>
+                                {% if c['comment']|length > 500 %}
                                 <p class="read-more"><a class="button">Read More</a></p>
+                                {% endif %}
                             </li>
                             {% endfor %}
+                            {% endif %}
                         </ul>
                     </div>
                 </div>

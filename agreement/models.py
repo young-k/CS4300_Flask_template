@@ -6,8 +6,9 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.rnn import DropoutWrapper, MultiRNNCell
 
-START_TOKEN = 1
 END_TOKEN = 0
+START_TOKEN = 1
+UNKNOWN = 2
 
 
 class SiameseRNN(object):
@@ -29,24 +30,23 @@ class SiameseRNN(object):
             self.lengths2 = tf.reduce_sum(tf.to_int32(tf.not_equal(self.input2, END_TOKEN)), axis=1)
 
         with tf.variable_scope('embeddings'):
-            self.word_matrix = tf.constant(np.random.rand(4000, 300), dtype=tf.float32)
+            self.word_matrix = tf.constant(np.load('./data/word_matrix.npy'), dtype=tf.float32)
             self.embeds1 = tf.nn.embedding_lookup(self.word_matrix, self.input1)
             self.embeds2 = tf.nn.embedding_lookup(self.word_matrix, self.input2)
 
         with tf.variable_scope('gru'):
             cell_fw = _rnn_cell(cell_type, n_layers, n_units)
             cell_bw = _rnn_cell(cell_type, n_layers, n_units)
-            gru1, _ = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embeds1, self.lengths1, dtype=tf.float32)
-            gru2, _ = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embeds2, self.lengths2, dtype=tf.float32)
-            batch_range = tf.range(self.input1.get_shape().as_list()[0])
-            self.out1 = tf.gather_nd(tf.concat(gru1, axis=2), tf.stack([batch_range, self.lengths1], axis=1))
-            self.out2 = tf.gather_nd(tf.concat(gru2, axis=2), tf.stack([batch_range, self.lengths2], axis=1))
+            _, st1 = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embeds1, self.lengths1, dtype=tf.float32)
+            _, st2 = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, self.embeds2, self.lengths2, dtype=tf.float32)
+            self.out1 = tf.concat((st1[0][-1], st1[0][-1]), axis=1)
+            self.out2 = tf.concat((st2[0][-1], st2[0][-1]), axis=1)
 
         with tf.variable_scope('loss'):
-            self.labels = tf.placeholder(tf.float32, [batch_size], 'labels')
+            self.labels = tf.placeholder(tf.int32, [batch_size], 'labels')
             self.prob = tf.exp(-1 * tf.norm(self.out1 - self.out2, ord=1, axis=1))
             self.accuracy = tf.reduce_mean(tf.cast(tf.equal(tf.to_int32(tf.round(self.prob)), self.labels), tf.float32))
-            self.loss = tf.nn.l2_loss(self.labels - self.prob)
+            self.loss = tf.nn.l2_loss(tf.cast(self.labels, tf.float32) - self.prob)
             self.train_step = tf.train.AdamOptimizer(0.001).minimize(self.loss)
 
 

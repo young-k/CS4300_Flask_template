@@ -2,16 +2,23 @@
 Text data loader.
 """
 
+from __future__ import print_function
+from __future__ import division
+
 import json
 import pandas as pd
 import numpy as np
 import os
 import spacy
+import sys
+from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
+from word_embeddings import GloVe
 
 NLP = spacy.load('en')
-START_TOKEN = 1
 END_TOKEN = 0
+START_TOKEN = 1
+UNKNOWN = 2
 
 
 def tokenize(text):
@@ -25,16 +32,25 @@ def update_vocab(file):
             vocab = set(json.load(f).keys())
     else:
         vocab = set()
-    c1 = pd.read_csv(file, index_col=0)['Comment 1'].values
-    c2 = pd.read_csv(file, index_col=0)['Comment 1'].values
-    for i in tqdm(c1.shape[0]):
-        vocab.update(tokenize(c1[i]))
-        vocab.update(tokenize(c2[i]))
+    c1 = pd.read_csv(file, index_col=0)['Comment 1'].values.astype(str)
+    c2 = pd.read_csv(file, index_col=0)['Comment 1'].values.astype(str)
+    vec = TfidfVectorizer(min_df=2)
+    vec.fit(np.concatenate([c1, c2]))
     word2id = {}
+    vocab.update(list(vec.vocabulary_.keys()))
     for i, word in enumerate(vocab):
-        word2id[word] = i+2
+        word2id[word] = i+3
     with open('./data/vocab.json', 'w') as file:
         json.dump(word2id, file)
+
+
+def embedding_matrix(word2id):
+    model = GloVe('../qa_attention_ptr/ptr-net/models/glove.6B.50d.txt')
+    matrix = np.zeros((len(word2id) + 3, 50))
+    for word, idx in tqdm(word2id.items()):
+        if word in model.dict:
+            matrix[idx] = model.model[model.dict[word]]
+    return matrix
 
 
 def text2ids(text, max_length=None):
@@ -42,12 +58,20 @@ def text2ids(text, max_length=None):
     max_length = max_length or len(tokens)
     with open('./data/vocab.json', 'r') as file:
         word2id = json.load(file)
-    return [word2id[w] for w in tokens[:max_length]] + [END_TOKEN] * (max_length - len(tokens))
+    pad = [END_TOKEN] * (max_length - len(tokens))
+    ids = []
+    for w in tokens[:max_length]:
+        if w in word2id:
+            ids.append(word2id[w])
+        else:
+            ids.append(UNKNOWN)
+    return ids + pad
 
 
 class Loader(object):
     def __init__(self, filepath, batch_size=100, max_length=200):
-        self.data = pd.read_csv(filepath, index_col=0)
+        self.filepath = filepath
+        self.data = pd.read_csv(os.path.join(filepath, filepath.split('/')[-1] + '.csv'), index_col=0)
         self.batch_size = batch_size
         self.max_length = max_length
 
@@ -61,14 +85,24 @@ class Loader(object):
         self.create_batches()
 
     def pre_process(self):
-        print('Pre-processing data...')
         self.embeds1, self.embeds2, self.labels = [], [], []
-        for i in tqdm(self.data.shape[0]):
-            sample = self.data.iloc[i]
-            self.embeds1.append(text2ids(sample['Comment 1'], max_length=self.max_length))
-            self.embeds2.append(text2ids(sample['Comment 2'], max_length=self.max_length))
-            self.labels.append(int(sample['Agree']))
-        self.embeds1, self.embeds2, self.labels = np.array(self.embeds1), np.array(self.embeds2), np.array(self.labels)
+        if {'embeds1.npy', 'embeds2.npy', 'labels.npy'}.issubset(os.listdir(self.filepath)):
+            print('Loading pre-processed data...')
+            self.embeds1 = np.load(os.path.join(self.filepath, 'embeds1.npy'))
+            self.embeds2 = np.load(os.path.join(self.filepath, 'embeds2.npy'))
+            self.labels = np.load(os.path.join(self.filepath, 'labels.npy'))
+        else:
+            print('Pre-processing data...')
+            for i in tqdm(range(self.data.shape[0])):
+                sample = self.data.iloc[i]
+                self.embeds1.append(text2ids(sample['Comment 1'], max_length=self.max_length))
+                self.embeds2.append(text2ids(sample['Comment 2'], max_length=self.max_length))
+                self.labels.append(int(sample['Agree']))
+            self.embeds1, self.embeds2 = np.array(self.embeds1), np.array(self.embeds2)
+            self.labels = np.array(self.labels).astype(int)
+            np.save(os.path.join(self.filepath, 'embeds1.npy'), self.embeds1)
+            np.save(os.path.join(self.filepath, 'embeds2.npy'), self.embeds2)
+            np.save(os.path.join(self.filepath, 'labels.npy'), self.labels)
 
     def create_batches(self):
         self.n_batches = int(self.data.shape[0] // self.batch_size)
@@ -88,5 +122,7 @@ class Loader(object):
 
 
 if __name__ == '__main__':
-    for f in ['testing.csv', 'training.csv', 'testing.csv']:
-        update_vocab(os.path.join('./data', f))
+    with open('./data/vocab.json', 'r') as file:
+        word2id = json.load(file)
+    matrix = embedding_matrix(word2id)
+    np.save('./data/word_matrix.npy', matrix)
