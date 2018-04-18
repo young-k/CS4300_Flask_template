@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('type', type=str, default='attention', help='Model type. One of attention or siamese')
-args = parser.parse_arguments(sys.argv[1:])
+args = parser.parse_args(sys.argv[1:])
 
 MODEL_TYPE = args.type
 N_EPOCHS = 1000
