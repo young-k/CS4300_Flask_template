@@ -20,13 +20,13 @@ with tf.Session() as sess:
     sess.run(init)
     sess.run(init)
     for n in tqdm(range(N_EPOCHS)):
-        for i in range(train.n_batches):
+        for i in tqdm(range(train.n_batches)):
             comment1, comment2, labels = train.next_batch()
             train_dict = {model.input1: comment1, model.input2: comment2, model.labels: labels}
             loss, _ = sess.run([model.loss, model.train_step], feed_dict=train_dict)
-        if (n % 10) == 0:
-            acc_va = 0, 0
-            for j in range(valid.n_batches):
+        if (n % 2) == 0:
+            acc_va = 0
+            for j in tqdm(range(valid.n_batches)):
                 comment1, comment2, labels = valid.next_batch()
                 valid_dict = {model.input1: comment1, model.input2: comment2, model.labels: labels}
                 acc = sess.run(model.accuracy, feed_dict=valid_dict)
