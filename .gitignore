@@ -1,7 +1,7 @@
 venv
 .env
+*glove*
 *.pyc
-*.txt
 *.zip
 migrations 
 vagrant/.vagrant
