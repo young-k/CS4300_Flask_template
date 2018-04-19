@@ -2,16 +2,27 @@
 Train TensorFlow models.
 """
 
+import argparse
 import tensorflow as tf
-from models import SiameseRNN
+import sys
+from models import AttentionRNN, SiameseRNN
 from loader import Loader
 from tqdm import tqdm
 
+parser = argparse.ArgumentParser()
+parser.add_argument('type', type=str, default='attention', help='Model type. One of attention or siamese')
+args = parser.parse_args(sys.argv[1:])
+
+MODEL_TYPE = args.type
 N_EPOCHS = 1000
 
 train = Loader('./data/training')
 valid = Loader('./data/testing')
-model = SiameseRNN()
+if MODEL_TYPE == 'attention':
+    model = AttentionRNN()
+elif MODEL_TYPE == 'siamese':
+    model = SiameseRNN()
+    
 saver = tf.train.Saver()
 best = 0
 
@@ -35,6 +46,6 @@ with tf.Session() as sess:
             print('Training loss: {:.3f}, Validation accuracy: {:.2f}%'.format(loss, 100*acc_va))
             if acc_va > best:
                 best = acc_va
-                saver.save(sess, './models')
+                saver.save(sess, './models' + MODEL_TYPE)
             else:
-                saver.restore(sess, './models')
+                saver.restore(sess, './models' + MODEL_TYPE)
