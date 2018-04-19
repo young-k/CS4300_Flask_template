@@ -69,4 +69,4 @@ def write_sample_to_file(num_posts, num_comments):
   f.close()
 
 if __name__ == "__main__":
-  write_sample_to_file(5, 25)
+  write_sample_to_file(1000, 40)
