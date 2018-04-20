@@ -35,7 +35,8 @@ class RNN(object):
 
         with tf.variable_scope('p_context'):
             cell_fw, cell_bw = _rnn_cell(args.n_layers, args.n_units), _rnn_cell(args.n_layers, args.n_units)
-            p_context, _ = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, embeds_p, sequence_length=lengths_p)
+            p_context, _ = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, embeds_p, sequence_length=lengths_p,
+                                                           dtype=tf.float32)
             p_context = tf.concat(p_context, axis=2)
 
         with tf.variable_scope('c_context'):
