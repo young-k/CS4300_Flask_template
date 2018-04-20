@@ -1,8 +1,8 @@
 venv
 .env
+*glove*
 .idea/
 *.pyc
-*.txt
 *.zip
 */.ipynb_checkpoints/
 migrations 
