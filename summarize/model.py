@@ -57,14 +57,12 @@ class RNN(object):
         with tf.variable_scope('scores'):
             cell = _rnn_cell(args.n_layers, args.n_units)
             _, final_state = tf.nn.dynamic_rnn(cell, aligned.rnn_output, lengths_c, dtype=tf.float32)
-            preds = tf.squeeze(tf.layers.dense(tf.concat(final_state, axis=1), 1))
-            self.pred_score = tf.exp(preds)
-
-        with tf.variable_scope('labels'):
-            self.scores = tf.placeholder(tf.float32, [args.batch_size])
-            log_scores = tf.log(self.scores)
+            logits = tf.layers.dense(tf.concat(final_state, axis=1), 2)
+            self.preds = tf.nn.softmax(logits, axis=1)
 
         with tf.variable_scope('loss'):
-            loss = tf.reduce_mean(tf.nn.l2_loss(preds - log_scores))
-            self.train_step = tf.train.AdamOptimizer(args.learning_rate).minimize(loss)
-            self.l1_loss = tf.losses.absolute_difference(self.scores, self.pred_score)
+            self.labels = tf.placeholder(tf.int32, [args.batch_size])
+            self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits))
+            self.train_step = tf.train.AdamOptimizer(args.learning_rate).minimize(self.loss)
+            correct = tf.equal(tf.argmax(self.preds, axis=1, output_type=tf.int32), self.labels)
+            self.accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))

@@ -30,16 +30,23 @@ def create_data():
     comments = []
     for post in data:
         title = post['title'].replace('CMV:', '')
-        op = ' '.join([title, post['body']])
+        op = ' '.join([title, post['body']]).replace('\n', ' ')
         for comment in post['top_comments']:
-            comments.append([op, comment['body'], comment['score']])
+            comments.append([op, comment['body'].replace('\n', ' '), comment in post['delta_comments']])
     random.shuffle(comments)
     n_comments = len(comments)
-    cols = ['OP', 'Comment', 'Score']
+    # cols = ['OP', 'Comment', 'Delta']
     train, test = int(0.8 * n_comments), int(0.9 * n_comments)
-    pd.DataFrame(comments[:train], columns=cols).to_csv('./data/training.csv', index=False)
-    pd.DataFrame(comments[train:test], columns=cols).to_csv('./data/validation.csv', index=False)
-    pd.DataFrame(comments[test:], columns=cols).to_csv('./data/testing.csv', index=False)
+    with open('./data/training.txt', 'w') as f:
+        f.write(str(comments[:train]))
+    with open('./data/validation.txt', 'w') as f:
+        f.write(str(comments[train:test]))
+    with open('./data/testing.txt', 'w') as f:
+        f.write(str(comments[test:]))
+
+    # pd.DataFrame(comments[:train], columns=cols).to_csv('./data/training.csv', sep='\t', index=False)
+    # pd.DataFrame(comments[train:test], columns=cols).to_csv('./data/validation.csv', sep='\t', index=False)
+    # pd.DataFrame(comments[test:], columns=cols).to_csv('./data/testing.csv', sep='\t', index=False)
 
 
 def create_vocab():
@@ -71,12 +78,13 @@ def create_embedding_matrix(file_path):
 
 class Loader(object):
     def __init__(self, file_path, batch_size=64, max_post=1000, max_comment=250):
-        self.data = pd.read_csv(file_path)
+        with open(file_path, 'r') as f:
+            self.data = eval(f.read())
         self.mp, self.mc = max_post, max_comment
         self.batch_size = batch_size
         self.n_batches = None
-        self.encodings = {'op': [], 'comments': [], 'scores': []}
-        self.batches = {'op': (), 'comments': (), 'scores': ()}
+        self.encodings = {'op': [], 'comments': [], 'deltas': []}
+        self.batches = {'op': (), 'comments': (), 'deltas': ()}
         self.ptr = 0
 
         self.pre_process()
@@ -89,7 +97,9 @@ class Loader(object):
         def _encode(word):
             return vocab[word] if word in vocab else UNKNOWN
 
-        op, comments = self.data['OP'].values.astype(str).tolist(), self.data['Comment'].values.astype(str).tolist()
+        op = [sample[0] for sample in self.data]
+        comments = [sample[1] for sample in self.data]
+        # op, comments = self.data['OP'].values.astype(str).tolist(), self.data['Comment'].values.astype(str).tolist()
         print('Tokenizing posts...')
         for post in tqdm(op):
             tokens = tokenize(post)
@@ -100,26 +110,26 @@ class Loader(object):
             tokens = tokenize(comment)
             encoding = [_encode(w) for w in tokens[:self.mc] + [END_TOKEN] * (self.mc - len(tokens))]
             self.encodings['comments'].append(encoding)
-        self.encodings['scores'] = self.data['Score'].values.astype(int)
+        self.encodings['deltas'] = [sample[2] for sample in self.data]
 
     def create_batches(self):
-        self.n_batches = int(self.data.shape[0] // self.batch_size)
+        self.n_batches = int(len(self.data) // self.batch_size)
         n_samples = self.n_batches * self.batch_size
         permutation = np.random.permutation(n_samples)
         self.batches['op'] = np.split(np.array(self.encodings['op'])[permutation, :], self.n_batches)
         self.batches['comments'] = np.split(np.array(self.encodings['comments'])[permutation, :], self.n_batches)
-        self.batches['scores'] = np.split(np.array(self.encodings['scores'])[permutation], self.n_batches)
+        self.batches['deltas'] = np.split(np.array(self.encodings['deltas'])[permutation], self.n_batches)
 
     def next_batch(self):
         self.ptr = (self.ptr + 1) % self.n_batches
         if self.ptr == 0:
             self.create_batches()
-        return self.batches['op'][self.ptr], self.batches['comments'][self.ptr], self.batches['scores'][self.ptr] 
+        return self.batches['op'][self.ptr], self.batches['comments'][self.ptr], self.batches['deltas'][self.ptr]
     
 
 if __name__ == '__main__':
     glove_path = sys.argv[1]
-    if not {'training.csv', 'validation.csv', 'testing.csv'}.issubset(os.listdir('./data')):
+    if not {'training.txt', 'validation.txt', 'testing.txt'}.issubset(os.listdir('./data')):
         print('Generating data...')
         create_data()
     if not os.path.exists('./data/train_vocab.json'):

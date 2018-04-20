@@ -3,17 +3,15 @@ Train TensorFlow model.
 """
 
 import argparse
-import numpy as np
 import os
 import tensorflow as tf
 import sys
 from loader import Loader
 from model import RNN
-from tqdm import tqdm
 
 
 def train(args):
-    best = np.inf
+    best = 0
     data_tr = Loader(args.data_tr, args.batch_size, args.max_op, args.max_c)
     data_va = Loader(args.data_va, args.batch_size, args.max_op, args.max_c)
 
@@ -31,25 +29,26 @@ def train(args):
             saver.restore(sess, ckpt.model_checkpoint_path)
 
         for ep in range(args.n_epochs):
-            loss_tr = 0
-            for i in tqdm(range(data_tr.n_batches)):
-                posts, comments, scores = data_tr.next_batch()
-                feed_dict = {model.op: posts, model.comments: comments, model.scores: scores}
-                loss, _ = sess.run([model.l1_loss, model.train_step], feed_dict=feed_dict)
-                loss_tr += loss
-            loss_tr /= data_tr.n_batches
-            print('Training accuracy: {:.3f}'.format(loss_tr))
+            acc_tr = 0
+            for i in range(data_tr.n_batches):
+                posts, comments, labels = data_tr.next_batch()
+                feed_dict = {model.op: posts, model.comments: comments, model.labels: labels}
+                loss, acc, _ = sess.run([model.loss, model.accuracy, model.train_step], feed_dict=feed_dict)
+                acc_tr += acc
+                print('Epoch {} ({}/{}): loss={:.3f}, accuracy={:.3f}%'.format(ep+1, i+1, data_tr.n_batches, loss, acc))
+            acc_tr /= data_tr.n_batches
+            print('Mean training accuracy: {:.3f}'.format(acc_tr))
             if (ep % 2) == 0:
-                loss_va = 0
-                for j in tqdm(range(data_va.n_batches)):
-                    posts, comments, scores = data_va.next_batch()
-                    feed_dict = {model.op: posts, model.comments: comments, model.scores: scores}
-                    loss = sess.run(model.l1_loss, feed_dict=feed_dict)
-                    loss_va += loss
-                loss_va /= data_va.n_batches
-                print('Validation accuracy: {:.3f}'.format(loss_va))
-                if loss_va < best:
-                    best = loss_va
+                acc_va = 0
+                for j in range(data_va.n_batches):
+                    posts, comments, labels = data_va.next_batch()
+                    feed_dict = {model.op: posts, model.comments: comments, model.labels: labels}
+                    loss, acc = sess.run([model.loss, model.accuracy], feed_dict=feed_dict)
+                    acc_va += loss
+                acc_va /= data_va.n_batches
+                print('Mean validation accuracy: {:.3f}%'.format(100*acc_va))
+                if acc_va >= best:
+                    best = acc_va
                     checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                     saver.save(sess, checkpoint_path, global_step=ep)
                 else:
@@ -59,8 +58,8 @@ def train(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_tr', type=str, default='./data/training.csv', help='File path to training data.')
-    parser.add_argument('--data_va', type=str, default='./data/validation.csv', help='File path to validation data.')
+    parser.add_argument('--data_tr', type=str, default='./data/training.txt', help='File path to training data.')
+    parser.add_argument('--data_va', type=str, default='./data/validation.txt', help='File path to validation data.')
     parser.add_argument('--load_dir', type=str, default=None, help='Directory containing pre-trained model.')
     parser.add_argument('--save_dir', type=str, default='./models/', help='Directory in which to save trained model.')
 
