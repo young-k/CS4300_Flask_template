@@ -1,8 +1,10 @@
 venv
 .env
 *glove*
+.idea/
 *.pyc
 *.zip
+*/.ipynb_checkpoints/
 migrations 
 vagrant/.vagrant
 vagrant/site.retry
