@@ -60,8 +60,8 @@ def train(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_tr', type=str, default='./data/training.txt', help='File path to training data.')
-    parser.add_argument('--data_va', type=str, default='./data/validation.txt', help='File path to validation data.')
+    parser.add_argument('--data_tr', type=str, default='./data/snli_1.0_train.jsonl', help='File path to training data.')
+    parser.add_argument('--data_va', type=str, default='./data/snli_1.0_dev.jsonl', help='File path to validation data.')
     parser.add_argument('--load_dir', type=str, default=None, help='Directory containing pre-trained model.')
     parser.add_argument('--save_dir', type=str, default='./models/', help='Directory in which to save trained model.')
 
@@ -69,8 +69,8 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=64, help='Batch size.')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='Learning rate for Adam optimizer.')
 
-    parser.add_argument('--max_p', type=int, default=1000, help='Length at which to truncate premise.')
-    parser.add_argument('--max_h', type=int, default=250, help='Length at which to truncate hypothesis.')
+    parser.add_argument('--max_p', type=int, default=100, help='Length at which to truncate premise.')
+    parser.add_argument('--max_h', type=int, default=100, help='Length at which to truncate hypothesis.')
     parser.add_argument('--n_layers', type=int, default=2, help='Number of layers in each stage.')
     parser.add_argument('--n_units', type=int, default=128, help='Number of units in each RNN cell.')
 
