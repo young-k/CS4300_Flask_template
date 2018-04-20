@@ -29,7 +29,7 @@ class RNN(object):
             lengths_c = tf.reduce_sum(tf.to_int32(tf.not_equal(self.comments, END_TOKEN)), axis=1)
 
         with tf.variable_scope('embeddings'):
-            word_matrix = tf.Variable(np.load('./data/train_embeddings.npy'), trainable=True)
+            word_matrix = tf.Variable(np.load('./data/train_embeddings.npy'), dtype=tf.float32, trainable=True)
             embeds_p = tf.nn.embedding_lookup(word_matrix, self.op)
             embeds_c = tf.nn.embedding_lookup(word_matrix, self.comments)
 
@@ -41,7 +41,8 @@ class RNN(object):
 
         with tf.variable_scope('c_context'):
             cell_fw, cell_bw = _rnn_cell(args.n_layers, args.n_units), _rnn_cell(args.n_layers, args.n_units)
-            c_context, _ = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, embeds_c, sequence_length=lengths_c)
+            c_context, _ = tf.nn.bidirectional_dynamic_rnn(cell_fw, cell_bw, embeds_c, sequence_length=lengths_c,
+                                                           dtype=tf.float32)
             c_context = tf.concat(c_context, axis=2)
 
         with tf.variable_scope('p2c_alignment'):
@@ -50,13 +51,13 @@ class RNN(object):
             attn_state = attn_cell.zero_state(args.batch_size, dtype=tf.float32)
             helper = TrainingHelper(c_context, lengths_c)
             decoder = BasicDecoder(attn_cell, helper, attn_state)
-            aligned, state = dynamic_decode(decoder, maximum_iterations=args.max_c)
+            aligned, state, _ = dynamic_decode(decoder, maximum_iterations=args.max_c)
             self.attn_weights = tf.transpose(state.alignment_history.stack(), [1, 0, 2])
 
         with tf.variable_scope('scores'):
             cell = _rnn_cell(args.n_layers, args.n_units)
-            _, final_state = tf.nn.dynamic_rnn(cell, aligned, lengths_c)
-            preds = tf.layers.dense(final_state, 2)
+            _, final_state = tf.nn.dynamic_rnn(cell, aligned.rnn_output, lengths_c, dtype=tf.float32)
+            preds = tf.squeeze(tf.layers.dense(tf.concat(final_state, axis=1), 1))
             self.pred_score = tf.exp(preds)
 
         with tf.variable_scope('labels'):

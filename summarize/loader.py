@@ -75,9 +75,12 @@ class Loader(object):
         self.mp, self.mc = max_post, max_comment
         self.batch_size = batch_size
         self.n_batches = None
-        self.encodings = {'op': np.array([]), 'comments': np.array([]), 'scores': np.array([])}
+        self.encodings = {'op': [], 'comments': [], 'scores': []}
         self.batches = {'op': (), 'comments': (), 'scores': ()}
         self.ptr = 0
+
+        self.pre_process()
+        self.create_batches()
 
     def pre_process(self):
         with open('./data/train_vocab.json', 'r') as f:
@@ -91,21 +94,21 @@ class Loader(object):
         for post in tqdm(op):
             tokens = tokenize(post)
             encoding = [_encode(w) for w in tokens[:self.mp] + [END_TOKEN] * (self.mp - len(tokens))]
-            np.append(self.encodings['op'], encoding)
+            self.encodings['op'].append(encoding)
         print('Tokenizing comments...')
         for comment in tqdm(comments):
             tokens = tokenize(comment)
             encoding = [_encode(w) for w in tokens[:self.mc] + [END_TOKEN] * (self.mc - len(tokens))]
-            np.append(self.encodings['comments'], encoding)
+            self.encodings['comments'].append(encoding)
         self.encodings['scores'] = self.data['Score'].values.astype(int)
 
     def create_batches(self):
         self.n_batches = int(self.data.shape[0] // self.batch_size)
         n_samples = self.n_batches * self.batch_size
         permutation = np.random.permutation(n_samples)
-        self.batches['op'] = np.split(self.encodings['op'][permutation, :], self.n_batches)
-        self.batches['comments'] = np.split(self.encodings['comments'][permutation, :], self.n_batches)
-        self.batches['scores'] = np.split(self.encodings['scores'][permutation], self.n_batches) 
+        self.batches['op'] = np.split(np.array(self.encodings['op'])[permutation, :], self.n_batches)
+        self.batches['comments'] = np.split(np.array(self.encodings['comments'])[permutation, :], self.n_batches)
+        self.batches['scores'] = np.split(np.array(self.encodings['scores'])[permutation], self.n_batches)
 
     def next_batch(self):
         self.ptr = (self.ptr + 1) % self.n_batches
