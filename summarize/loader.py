@@ -64,7 +64,8 @@ def create_embedding_matrix(file_path):
         sub_vocab = json.load(f)
     sub_matrix = np.zeros((len(sub_vocab) + 3, int(re.findall(r'\d+', file_path)[-1])))
     for word, i in tqdm(sub_vocab.items()):
-        sub_matrix[i] = full_matrix[full_vocab[word]]
+        if word in full_vocab:
+            sub_matrix[i] = full_matrix[full_vocab[word]]
     np.save('./data/train_embeddings.npy', sub_matrix)
 
 
