@@ -30,12 +30,13 @@ def train(args):
 
         for ep in range(args.n_epochs):
             acc_tr = 0
+            n = data_tr.n_batches
             for i in range(data_tr.n_batches):
                 posts, comments, labels = data_tr.next_batch()
                 feed_dict = {model.op: posts, model.comments: comments, model.labels: labels}
                 loss, acc, _ = sess.run([model.loss, model.accuracy, model.train_step], feed_dict=feed_dict)
                 acc_tr += acc
-                print('Epoch {} ({}/{}): loss={:.3f}, accuracy={:.3f}%'.format(ep+1, i+1, data_tr.n_batches, loss, acc))
+                print('Epoch {} ({}/{}): loss={:.3f}, accuracy={:.3f}%'.format(ep+1, i+1, n, loss, 100*acc))
             acc_tr /= data_tr.n_batches
             print('Mean training accuracy: {:.3f}'.format(acc_tr))
             if (ep % 2) == 0:

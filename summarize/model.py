@@ -62,7 +62,8 @@ class RNN(object):
 
         with tf.variable_scope('loss'):
             self.labels = tf.placeholder(tf.int32, [args.batch_size])
-            self.loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels=self.labels, logits=logits))
+            targets = tf.one_hot(self.labels, depth=2)
+            self.loss = tf.reduce_mean(tf.nn.weighted_cross_entropy_with_logits(targets, logits, 100))
             self.train_step = tf.train.AdamOptimizer(args.learning_rate).minimize(self.loss)
             correct = tf.equal(tf.argmax(self.preds, axis=1, output_type=tf.int32), self.labels)
             self.accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
