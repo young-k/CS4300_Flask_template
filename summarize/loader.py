@@ -11,6 +11,7 @@ import random
 import re
 import sys
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import StratifiedShuffleSplit
 from tqdm import tqdm
 
 WORD_PATTERN = r'(?u)\b\w+\b'
@@ -35,7 +36,6 @@ def create_data():
             comments.append([op, comment['body'].replace('\n', ' '), comment in post['delta_comments']])
     random.shuffle(comments)
     n_comments = len(comments)
-    # cols = ['OP', 'Comment', 'Delta']
     train, test = int(0.8 * n_comments), int(0.9 * n_comments)
     with open('./data/training.txt', 'w') as f:
         f.write(str(comments[:train]))
@@ -43,10 +43,6 @@ def create_data():
         f.write(str(comments[train:test]))
     with open('./data/testing.txt', 'w') as f:
         f.write(str(comments[test:]))
-
-    # pd.DataFrame(comments[:train], columns=cols).to_csv('./data/training.csv', sep='\t', index=False)
-    # pd.DataFrame(comments[train:test], columns=cols).to_csv('./data/validation.csv', sep='\t', index=False)
-    # pd.DataFrame(comments[test:], columns=cols).to_csv('./data/testing.csv', sep='\t', index=False)
 
 
 def create_vocab():
@@ -83,14 +79,15 @@ class Loader(object):
         self.mp, self.mc = max_post, max_comment
         self.batch_size = batch_size
         self.n_batches = None
-        self.encodings = {'op': [], 'comments': [], 'deltas': []}
-        self.batches = {'op': (), 'comments': (), 'deltas': ()}
+        self.encodings = None
+        self.batches = {'op': [], 'comments': [], 'deltas': []}
         self.ptr = 0
 
         self.pre_process()
         self.create_batches()
 
     def pre_process(self):
+        self.encodings = {'op': [], 'comments': [], 'deltas': []}
         with open('./data/train_vocab.json', 'r') as f:
             vocab = json.load(f)
 
@@ -99,7 +96,6 @@ class Loader(object):
 
         op = [sample[0] for sample in self.data]
         comments = [sample[1] for sample in self.data]
-        # op, comments = self.data['OP'].values.astype(str).tolist(), self.data['Comment'].values.astype(str).tolist()
         print('Tokenizing posts...')
         for post in tqdm(op):
             tokens = tokenize(post)
@@ -110,15 +106,17 @@ class Loader(object):
             tokens = tokenize(comment)
             encoding = [_encode(w) for w in tokens[:self.mc] + [END_TOKEN] * (self.mc - len(tokens))]
             self.encodings['comments'].append(encoding)
-        self.encodings['deltas'] = [sample[2] for sample in self.data]
+        self.encodings['op'] = np.array(self.encodings['op'])
+        self.encodings['comments'] = np.array(self.encodings['comments'])
+        self.encodings['deltas'] = np.array([sample[2] for sample in self.data])
 
     def create_batches(self):
         self.n_batches = int(len(self.data) // self.batch_size)
-        n_samples = self.n_batches * self.batch_size
-        permutation = np.random.permutation(n_samples)
-        self.batches['op'] = np.split(np.array(self.encodings['op'])[permutation, :], self.n_batches)
-        self.batches['comments'] = np.split(np.array(self.encodings['comments'])[permutation, :], self.n_batches)
-        self.batches['deltas'] = np.split(np.array(self.encodings['deltas'])[permutation], self.n_batches)
+        sss = StratifiedShuffleSplit(n_splits=self.n_batches, train_size=self.batch_size, test_size=2)
+        for idx, _ in sss.split(self.encodings['op'], self.encodings['deltas']):
+            self.batches['op'].append(self.encodings['op'][idx, :])
+            self.batches['comments'].append(self.encodings['comments'][idx, :])
+            self.batches['deltas'].append(self.encodings['deltas'][idx])
 
     def next_batch(self):
         self.ptr = (self.ptr + 1) % self.n_batches
