@@ -2,12 +2,14 @@
 Create and load data.
 """
 
+import csv
 import json
 import numpy as np
 import os
 import pandas as pd
 import random
 import re
+import sys
 from sklearn.feature_extraction.text import CountVectorizer
 from tqdm import tqdm
 
@@ -52,6 +54,18 @@ def create_vocab():
         vocab[word] = int(i+3)
     with open('./data/train_vocab.json', 'w') as f:
         json.dump(vocab, f)
+
+
+def create_embedding_matrix(file_path):
+    words = pd.read_table(file_path, sep=" ", index_col=0, header=None, quoting=csv.QUOTE_NONE)
+    full_matrix = words.as_matrix()
+    full_vocab = {word: i for i, word in enumerate(words.index)}
+    with open('./data/train_vocab.json', 'r') as f:
+        sub_vocab = json.load(f)
+    sub_matrix = np.zeros(len(sub_vocab) + 3, int(re.findall(r'\d+', file_path)[-1]))
+    for word, i in tqdm(sub_vocab.items()):
+        sub_matrix[i] = full_matrix[full_vocab[word]]
+    np.save('./data/train_embeddings.npy', sub_matrix)
 
 
 class Loader(object):
@@ -100,7 +114,13 @@ class Loader(object):
     
 
 if __name__ == '__main__':
+    glove_path = sys.argv[1]
     if not {'training.csv', 'validation.csv', 'testing.csv'}.issubset(os.listdir('./data')):
+        print('Generating data...')
         create_data()
     if not os.path.exists('./data/train_vocab.json'):
+        print('Generating vocab...')
         create_vocab()
+    if not os.path.exists('./data/train_embeddings.npy'):
+        print('Generating embedding matrix..')
+        create_embedding_matrix(glove_path)
