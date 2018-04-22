@@ -1,0 +1,100 @@
+{
+    "dataset_reader": {
+        "type": "snli",
+        "token_indexers": {
+            "elmo": {
+                "type": "elmo_characters"
+            }
+        },
+        "tokenizer": {
+            "end_tokens": [
+                "@@NULL@@"
+            ]
+        }
+    },
+    "train_data_path": "https://s3-us-west-2.amazonaws.com/allennlp/datasets/snli/snli_1.0_train.jsonl",
+    "validation_data_path": "https://s3-us-west-2.amazonaws.com/allennlp/datasets/snli/snli_1.0_dev.jsonl",
+    "model": {
+        "type": "decomposable_attention",
+        "text_field_embedder": {
+            "elmo": {
+                "type": "elmo_token_embedder",
+                "options_file": "/net/efs/aristo/allennlp/elmo_models/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json",
+                "weight_file": "/net/efs/aristo/allennlp/elmo_models/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5",
+                "do_layer_norm": false,
+                "dropout": 0.0
+            }
+        },
+        "attend_feedforward": {
+            "input_dim": 1024,
+            "num_layers": 2,
+            "hidden_dims": 200,
+            "activations": "relu",
+            "dropout": 0.0
+        },
+        "similarity_function": {
+            "type": "dot_product"
+        },
+        "compare_feedforward": {
+            "input_dim": 2048,
+            "num_layers": 2,
+            "hidden_dims": 200,
+            "activations": "relu",
+            "dropout": 0.0
+        },
+        "aggregate_feedforward": {
+            "input_dim": 400,
+            "num_layers": 2,
+            "hidden_dims": [
+                200,
+                3
+            ],
+            "activations": [
+                "relu",
+                "linear"
+            ],
+            "dropout": [
+                0.0,
+                0.0
+            ]
+        },
+        "initializer": [
+            [
+                ".*linear_layers.*weight",
+                {
+                    "type": "xavier_normal"
+                }
+            ],
+            [
+                ".*token_embedder_tokens\\._projection.*weight",
+                {
+                    "type": "xavier_normal"
+                }
+            ]
+        ]
+    },
+    "iterator": {
+        "type": "bucket",
+        "sorting_keys": [
+            [
+                "premise",
+                "num_tokens"
+            ],
+            [
+                "hypothesis",
+                "num_tokens"
+            ]
+        ],
+        "batch_size": 64
+    },
+    "trainer": {
+        "num_epochs": 140,
+        "patience": 20,
+        "cuda_device": 0,
+        "grad_clipping": 5.0,
+        "validation_metric": "+accuracy",
+        "optimizer": {
+            "type": "adagrad"
+        }
+    }
+}
