@@ -47,7 +47,7 @@ class DecomposableAttention(torch.nn.Module):
         self._num_labels = len(vocab)
         self._loss = torch.nn.CrossEntropyLoss()
 
-    def forward(self, premise, hypothesis, label=None):
+    def forward(self, premise, hypothesis):
         """
         Parameters
         ----------
@@ -106,12 +106,7 @@ class DecomposableAttention(torch.nn.Module):
         label_logits = self._aggregate_feedforward(aggregate_input)
         label_probs = torch.nn.functional.softmax(label_logits, dim=-1)
 
-        output_dict = {"label_logits": label_logits, "label_probs": label_probs}
-
-        if label is not None:
-            loss = self._loss(label_logits, label.long().view(-1))
-            self._accuracy(label_logits, label.squeeze(-1))
-            output_dict["loss"] = loss
+        output_dict = {'label_probs': label_probs, 'p2h_attention': p2h_attention, 'h2p_attention': h2p_attention}
 
         return output_dict
 
