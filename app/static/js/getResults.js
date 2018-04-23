@@ -1,5 +1,6 @@
-console.log(window.innerWidth);
-var width = window.innerWidth, height = 2800;
+max = Object.keys(views).length;
+rows = max/3 + 1;
+var width = window.innerWidth, height = 270*(max/3 + 1);
 var svg = d3.select("body").append("svg")
 	.attr("width", width)
 	.attr("height", height);
@@ -13,9 +14,8 @@ var y = d3.scaleLinear()
 	.domain([0, 10]);
 
 function grid(d){
-	max = Object.keys(d).length;
 	iter = 0
-	for (var i = 0; i < 15; i++){
+	for (var i = 0; i < rows; i++){
 		for (var j = 0; j < 3; j++){
 			if (iter >= max){
 				return d;
@@ -46,6 +46,7 @@ function openMod(d){
 			var p = item.append("p").attr("class",'read-more');
 			p.append("a").attr("class", 'button')
 			.html("[+]")
+			.on("mouseover", function(){ d3.select(this).style("cursor", "pointer"); })
 			.on("click", function(d) {
 				//functionality of expanding comments
 				totalHeight = 0
@@ -85,6 +86,15 @@ var groups = svg.selectAll(".groups")
     .attr("class", "gbar")
     .attr("data-toggle", "modal")
     .attr("data-target", "#exampleModal")
+    .on("mouseover", function () {
+    	var t = d3.select(this);
+    	t.select("circle").attr("stroke", "#656565");
+    	t.style("cursor", "pointer"); 
+    })
+    .on("mouseout", function () {
+    	d3.select(this).select("circle")
+    	.attr("stroke",  "#ddd");
+    })
     .on("click", function(d) {
 		openMod(d);		
 	}); 
@@ -93,9 +103,10 @@ groups.append("circle")
 	.attr("cx", function(d, i) { return x(d['grid'][0]); })
 	.attr("cy", function(d, i) { return y(d['grid'][1]); })
 	.attr("r", 120)
-	.attr("stroke", "#eee")
 	.attr("fill", '#3D88B2')
 	.attr("fill-opacity", 0.4)
+	.attr("stroke", "#ddd")
+	.attr("stroke-width", 4)
 	.attr("id", function(d,i) {return "node-"+i;}); 
 
 groups.append("text")
