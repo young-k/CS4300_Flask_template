@@ -40,7 +40,7 @@ function grid(d){
 		.attr("cy", function(d, i) { return y(d['grid'][1]); })
 		.attr("r", 120)
 		.attr("stroke", "#eee")
-		.attr("fill", '#33C4FF')
+		.attr("fill", '#3D88B2')
 		.attr("fill-opacity", 0.4)
 		.attr("id", function(d,i) {return "node-"+i;})
 		.attr("data-toggle", "modal")
