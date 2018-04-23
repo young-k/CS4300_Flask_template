@@ -1,0 +1,79 @@
+@media (min-width: 1200px) {
+    .container {
+        max-width: 970px;
+    }
+}
+@media (min-width:400px){
+    .global-search {
+        padding: 20px 0;
+        text-align:center;
+    }
+    body { 
+        font-family: SanFrancisco;
+        margin-bottom: 10%;
+    }
+    .global-search {
+        text-align:center;
+        padding:10px;
+    }
+    .global-search .form-control {
+        height: 50px;
+        width: 800px;
+    }
+    .global-search * {
+        display:inline-block;
+        margin-bottom:0;
+    }
+}
+.topcorner{
+    position:absolute;
+    bottom:2%;
+    right:2%;
+}
+.btn{
+    background-color: #285C79;
+    border: none;
+    color: white;
+    font-size: 18px;
+    font-family: SanFrancisco;
+    height: 50px;
+    padding: 0 30px;
+}
+.btn:hover{
+    color: white;
+}
+.step-links a{
+    color: #4285F4;
+}
+#search_label{
+    font-size: 24px;
+    padding-right: 8px;
+}
+@font-face {
+    font-family: SanFrancisco;
+    src: url(sanfran.otf);
+}
+#title{
+    color: #3D88B2;
+    font-family: SanFrancisco;
+    font-size: 60px;
+    margin-bottom: 40px;
+}
+.flex {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
+.p_top{
+    display:inline-block;
+    padding-top: 0px;
+}
+.comment{
+    margin-top: 10px;
+}
+#input {
+    font-family: SanFrancisco;
+    font-size: 18px;
+}

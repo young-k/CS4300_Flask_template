@@ -16,16 +16,18 @@
         <link rel="stylesheet" href="/static/home.css">
     </head>
     <body>
-        <div class="topcorner">
-            <p>{{ net_id }}</p>
+        <div class="flex">
+            <form action="/results" class="form-inline global-search">
+                <h1 id="title" class="left-title"> Change My View On...</h1>
+                <br>
+                <div class="form-group p_top">
+                    <input id="input" type="text" name="search" class="form-control" placeholder="Enter your topic here...">
+                </div>
+                <button type="submit" class="btn"> Search </button>
+            </form>
         </div>
-        <form action="/results" class="form-inline global-search">
-            <h1 id="title" class="left-title"> Change My View On...</h1>
-            <br><br>
-            <div class="form-group p_top">
-                <input id="input" type="text" name="search" class="form-control" placeholder="Topic">
-            </div>
-            <button type="submit" class="btn"> Go! </button>
-        </form>
+        <div class="topcorner">
+            <p>Created by Yuji Akimoto, Ben Edwards, Jacqueline Wen, Young Kim, and Zachary Brienza</p>
+        </div>
     </body>
 </html>
