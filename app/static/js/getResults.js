@@ -2,9 +2,9 @@ console.log(window.innerWidth);
 var width = window.innerWidth, height = 2800;
 var svg = d3.select("body").append("svg")
 	.attr("width", width)
-		.attr("height", height);
+	.attr("height", height);
 
-	var x = d3.scaleLinear()
+var x = d3.scaleLinear()
 	.range([300, width-300])
 	.domain([0, 2]);
 
@@ -28,7 +28,7 @@ function grid(d){
 }
 
 function openMod(d){
-	// console.log(d);ccchartchartc
+	console.log(d);
 	d3.select("#modalLabel").html(d['title']);
 	d3.select(".modal-body").append("ul").attr("class", 'list-group');
 	var max;
@@ -43,7 +43,35 @@ function openMod(d){
 		var item = d3.select(".modal-body").append("li").attr("class", 'list-group-item comment preview');
 		item.append("p").attr("class", "comment-txt").html(d['comments'][i]['comment'])
 		if(d['comments'][i]['comment'].length > 620){
-			item.append("p").attr("class",'read-more').append("a").attr("class", 'button').html("[+]");
+			var p = item.append("p").attr("class",'read-more');
+			p.append("a").attr("class", 'button')
+			.html("[+]")
+			.on("click", function(d) {
+				//functionality of expanding comments
+				totalHeight = 0
+				$el = $(this);
+				$p  = $el.parent();
+				$up = $p.parent();
+				$ps = $up.find("p:not('.read-more')");
+
+				// measure how tall inside should be by adding together heights of all inside paragraphs (except read-more paragraph)
+				$ps.each(function() {
+				totalHeight += $(this).outerHeight() + 20;
+				});
+				    
+				$up.css({
+				  // Set height to prevent instant jumpdown when max height is removed
+				  "height": $up.height(),
+				  "max-height": 9999
+				})
+				.animate({
+				  "height": totalHeight
+				});
+				// fade out read-more
+				$p.fadeOut();
+				// prevent jump-down
+				return false;	
+			});
 		}
 	}
 }
@@ -54,7 +82,12 @@ var groups = svg.selectAll(".groups")
     .data(views)
     .enter()
     .append("g")
-    .attr("class", "gbar");
+    .attr("class", "gbar")
+    .attr("data-toggle", "modal")
+    .attr("data-target", "#exampleModal")
+    .on("click", function(d) {
+		openMod(d);		
+	}); 
 
 groups.append("circle")
 	.attr("cx", function(d, i) { return x(d['grid'][0]); })
@@ -63,12 +96,7 @@ groups.append("circle")
 	.attr("stroke", "#eee")
 	.attr("fill", '#3D88B2')
 	.attr("fill-opacity", 0.4)
-	.attr("id", function(d,i) {return "node-"+i;})
-	.attr("data-toggle", "modal")
-    .attr("data-target", "#exampleModal")
-	.on("click", function(d) {
-		openMod(d);		
-	}); 
+	.attr("id", function(d,i) {return "node-"+i;}); 
 
 groups.append("text")
 	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
@@ -76,11 +104,7 @@ groups.append("text")
 	.attr("width", 150)
 	.attr("height", 150)
 	.text(function(d){return d['title']})
-	.attr("id", function(d,i) {return "text-"+i;})
-	.on("click", function(d) {
-		console.log("PRESSED");
-		openMod(d);		
-	}); 
+	.attr("id", function(d,i) {return "text-"+i;}); 
 
 for(var i = 0; i <id; i++){
 	d3plus.textwrap()
