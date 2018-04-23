@@ -19,20 +19,14 @@
         <link rel="stylesheet" href="/static/main.css">
     </head>
     <body>
-        <div class="topcorner">
-            <p>{{ net_id }}</p>
+        <div class="top">
+            <form>
+                <span id="header-span"> Change my view on... </span>
+                <input id="input" type="text" name="search" class="form-control" placeholder="Enter your topic here...">
+                <button type="submit" class="btn"> Search </button>
+            </form>
         </div>
-        <form class="form-inline global-search">
-            <h1 id="title" class="left-title"> Changing </h1>
-            <h1 id="title"> Views </h1>
-            <br><br>
-            <div class="form-group p_top">
-                <label id="search_label"> Change my view on </label>
-                <input id="input" type="text" name="search" class="form-control" placeholder="Topic">
-            </div>
-            <button type="submit" class="btn"> Go! </button>
-        </form>
-        <!-- <h2>{{output_message}}</h2> -->
+        <h3> Your Query: {{ query }} </h3>
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -62,34 +56,6 @@
             console.log(views);
         </script>
         <script type=text/javascript src="{{url_for('static', filename='js/getResults.js')}}"></script>
-<!--         <form class="form-inline global-search">
-            <h2>{{output_message}}</h2>
-            <br>
-            {% if data|length > 0 %}
-            {% for d in range([10,data|length]|min) %}
-            <div class="container">
-                <br>
-                <div class='jumbotron jumbotron-fluid'>
-                    <h3 class="c_title" data-toggle="collapse" data-target="#collapseExample{{d}}">{{data[d]['title']}}</h3><br>
-                    <div class="collapsing" id="collapseExample{{d}}">
-                        <ul class = "list-group">
-                            {%if data[d]['comments'] |length >=5 %}
-                            {% for c in data[d]['comments'][0:5] %}
-                            <li class = "list-group-item text-left comment preview">
-                                <p class="comment-txt">{{c['comment']}}</p>
-                                {% if c['comment']|length > 500 %}
-                                <p class="read-more"><a class="button">Read More</a></p>
-                                {% endif %}
-                            </li>
-                            {% endfor %}
-                            {% endif %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-            {% endif %}
-        </form> -->
     </body>
 
 </html>

@@ -19,7 +19,6 @@ glove = GloVe('./data/glove.6B.50d.txt')
 
 @irsystem.route('/', methods=['GET'])
 def home():
-  print("wtf")
   query = request.args.get('search')
   if not query:
     result = []
@@ -31,7 +30,6 @@ def home():
 
 @irsystem.route('results', methods=['GET'])
 def search():
-    print("wtfx2")
     query = request.args.get('search')
     if not query:
         result = []
@@ -42,4 +40,4 @@ def search():
         for post in data:
             words = post['keywords']
             post['keywords'] = list(words)
-    return render_template('search.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
+    return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result)
