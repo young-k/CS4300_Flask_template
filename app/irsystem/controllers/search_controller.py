@@ -64,13 +64,16 @@ def tokenize(text):
     doc = nlp(text)
     return [token for token in doc]
     
-def agreement_score(premise, hypothesis):
-    p_tokens = tokenize(premise)
+def agreement_score(premises, hypothesis):
+    n_premises = len(premises)
+    p_array = []
+    for premise in premises:
+        p_tokens = tokenize(premise)
+        p_array.append([indexer.token_to_indices(t, None) for t in p_tokens])
     h_tokens = tokenize(hypothesis)
-    p_array = [indexer.token_to_indices(t, None) for t in p_tokens]
-    h_array = [indexer.token_to_indices(t, None) for t in h_tokens]
-    premise = {'elmo': Variable(torch.Tensor([p_array]).type(torch.LongTensor))}
-    hypothesis = {'elmo': Variable(torch.Tensor([h_array]).type(torch.LongTensor))}
+    h_array = [[indexer.token_to_indices(t, None) for t in h_tokens] * n_premises]
+    premise = {'elmo': Variable(torch.Tensor(p_array).type(torch.LongTensor))}
+    hypothesis = {'elmo': Variable(torch.Tensor(h_array).type(torch.LongTensor))}
     outputs = model.forward(premise, hypothesis)
     preds = 100 * np.squeeze(outputs['label_probs'].data.numpy())
     attn = np.squeeze(outputs['p2h_attention'].data.numpy())
@@ -99,13 +102,13 @@ def search():
     else:
         output_message = 'Your search: ' + topic
         result = topic_search(topic, data, glove, dt_matrix, vocab)
-        for r in result:
-            parsed_title = r['title'].replace('CMV', '') 
-            if statement!=' ':
-                agree_score, attn = agreement_score(parsed_title, statement)
-                r['agree_score'] = agree_score[0]
-                print(parsed_title,r['agree_score'])
-        if statement!=' ':
+        parsed_titles = [r['title'].replace('CMV', '') for r in result]
+        
+        if statement != '':
+            agree_scores, attns = agreement_score(parsed_titles, statement)
+            for i, r in enumerate(result):
+                r['agree_score'] = agree_scores[i]
+                print(parsed_titles[i], agree_scores[i])
             result = sorted(result, key=lambda x: x['agree_score'],reverse=True)
         
     return render_template('search.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
