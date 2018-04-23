@@ -8,7 +8,14 @@ $(".more").toggle(function(){
 
 var $el, $ps, $up, totalHeight;
 $(document).ready(function(){
+	console.log("document ready");
+
+	$(".read-more .button").click(function(){
+		console.log("read more clicked");
+	});
+
 	$(".preview .button").click(function() {
+		console.log("expand please");
 	  totalHeight = 0
 
 	  $el = $(this);
