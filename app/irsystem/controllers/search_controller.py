@@ -28,7 +28,7 @@ def home():
         result = topic_search(query, data, glove, dt_matrix, vocab)
     return render_template('home.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
 
-@irsystem.route('/results', methods=['GET'])
+@irsystem.route('results', methods=['GET'])
 def search():
     query = request.args.get('search')
     if not query:
@@ -37,4 +37,7 @@ def search():
     else:
         output_message = 'Your search: ' + query
         result = topic_search(query, data, glove, dt_matrix, vocab)
+        for post in data:
+            words = post['keywords']
+            post['keywords'] = list(words)
     return render_template('search.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
