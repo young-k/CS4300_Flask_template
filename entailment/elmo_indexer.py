@@ -55,8 +55,8 @@ class ELMoCharacterMapper:
             word_encoded = word.encode('utf-8', 'ignore')[:(ELMoCharacterMapper.max_word_length-2)]
             char_ids = [ELMoCharacterMapper.padding_character] * ELMoCharacterMapper.max_word_length
             char_ids[0] = ELMoCharacterMapper.beginning_of_word_character
-            for k, chr_id in enumerate(word_encoded, start=1):
-                char_ids[k] = ord(chr_id)
+            for k, chr_id in enumerate(bytearray(word_encoded), start=1):
+                char_ids[k] = chr_id
             char_ids[len(word_encoded) + 1] = ELMoCharacterMapper.end_of_word_character
 
         # +1 one for masking
