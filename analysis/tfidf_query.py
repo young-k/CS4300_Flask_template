@@ -25,13 +25,16 @@ def find_keywords(data, n=10):
 
 def topic_search(keyword, data, model, dt_matrix, vocab):
     expanded = model.nearest_neighbors(keyword, n=10)
+    original_weighting = 5
 
     def _is_relevant(sample_post):
         return len(set(expanded).intersection(sample_post['keywords'])) > 0
 
     def _relevance_score(sample_post):
         overlap = set(expanded).intersection(sample_post['keywords'])
-        score = sum([dt_matrix[data.index(sample_post), vocab[word]] for word in overlap])
+        def is_original(word):
+            return  1 + original_weighting * int(word == keyword)
+        score = sum([is_original(word) * dt_matrix[data.index(sample_post), vocab[word]] for word in overlap])
         return score
 
     relevant = [post for post in data if _is_relevant(post)]
