@@ -16,6 +16,7 @@ from entailment.similarity_function import SimilarityFunction
 from entailment.elmo_token_embedder import ElmoTokenEmbedder
 from entailment.model import DecomposableAttention
 from entailment.elmo_indexer import ELMoTokenCharactersIndexer
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from . import *
 
 
@@ -60,6 +61,9 @@ model.load(serialization_dir, weights_file)
 nlp = spacy.load('en')
 indexer = ELMoTokenCharactersIndexer()
 
+##vaderSentiment
+analyzer = SentimentIntensityAnalyzer()
+
 def tokenize(text):
     doc = nlp(text)
     return [token for token in doc]
@@ -79,6 +83,10 @@ def agreement_score(premises, hypothesis):
     attn = np.squeeze(outputs['p2h_attention'].data.numpy())
     return preds, attn
     
+def vader_agreement_score(s1,s2):
+    p1 = analyzer.polarity_scores(s1.encode('utf8'))
+    p2 = analyzer.polarity_scores(s2.encode('utf8'))
+    return p1['compound'] - p2['compound']
 @irsystem.route('/', methods=['GET'])
 def home():
     query = request.args.get('search')
@@ -105,10 +113,21 @@ def search():
         parsed_titles = [r['title'].replace('CMV', '') for r in result]
         
         if statement != '':
-            agree_scores, attns = agreement_score(parsed_titles, statement)
+            #agree_scores, attns = agreement_score(parsed_titles, statement)
             for i, r in enumerate(result):
-                r['agree_score'] = agree_scores[i]
-                print(parsed_titles[i], agree_scores[i])
-            result = sorted(result, key=lambda x: x['agree_score'],reverse=True)
+                r['agree_score'] = abs(vader_agreement_score(statement,parsed_titles[i]))
+                r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
+                #print(parsed_titles[i],r['agree_score'],r['relevance_score'],r['ranking_score'])
+            result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
+            
+            print('#######################')
+            print('#######################')
+            print('#######################')
+            print(statement)
+            print('#######################')
+            print('#######################')
+            print('#######################')
+            for r in result:
+                print(r['title'],r['agree_score'],r['relevance_score'],r['ranking_score'])
         
     return render_template('search.html', name=project_name, net_id=net_id, output_message=output_message, data=result)

@@ -38,6 +38,8 @@ def topic_search(keyword, data, model, dt_matrix, vocab):
         return score
 
     relevant = [post for post in data if _is_relevant(post)]
+    for post in relevant:
+        post['relevance_score'] = _relevance_score(post)
     relevant = sorted(relevant, key=_relevance_score, reverse=True)
     return relevant
 
