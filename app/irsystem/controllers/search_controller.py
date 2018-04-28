@@ -1,5 +1,8 @@
 import json
 import sys
+import torch
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
@@ -15,6 +18,10 @@ with open('./data/data.json', 'r') as f:
 
 data, dt_matrix, vocab = find_keywords(data, n=10)
 glove = GloVe('./data/glove.6B.50d.txt')
+
+model = torch.load('./semantics/infersent.allnli.pickle', map_location='cpu')
+model.set_glove_path('./data/glove.840B.300d.txt')
+model.build_vocab_k_words(K=100000)
 
 
 @irsystem.route('/', methods=['GET'])
@@ -37,6 +44,12 @@ def search():
     else:
         output_message = 'Your search: ' + query
         result = topic_search(query, data, glove, dt_matrix, vocab)
+        titles = [res['title'] for res in result]
+        encoded_titles = model.encode(titles)
+        embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
+        for i, res in enumerate(result):
+            res['coordinate'] = embeds[i]
+        
         for post in data:
             words = post['keywords']
             post['keywords'] = list(words)
