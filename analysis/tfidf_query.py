@@ -9,7 +9,7 @@ def find_keywords(data, n=10):
     documents = []
     for i, sample in enumerate(data):
         title = sample['title']
-        comments = ' '.join(c['comment'] for c in sample['comments'])
+        comments = ' '.join(c['body'] for c in sample['top_comments'])
         documents.append(' '.join([title, comments]))
 
     vectorizer = TfidfVectorizer(min_df=3, stop_words='english').fit(documents)
