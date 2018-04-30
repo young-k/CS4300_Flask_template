@@ -3,6 +3,7 @@ import sys
 import torch
 import markdown2
 import re
+import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 
@@ -29,13 +30,6 @@ model.build_vocab_k_words(K=100000)
 
 ##vaderSentiment
 analyzer = SentimentIntensityAnalyzer()
-
-
-def vader_agreement_score(s1,s2):
-    print('inside agreement score')
-    p1 = analyzer.polarity_scores(s1.encode('utf8'))
-    p2 = analyzer.polarity_scores(s2.encode('utf8'))
-    return p1['compound'] - p2['compound']
     
 @irsystem.route('/', methods=['GET'])
 def home():
@@ -63,21 +57,16 @@ def search():
         if len(result) > 0:
             #VADER RANKING 
             if statement != '':
-                print('here')
                 parsed_titles = [r['title'] for r in result]
-                print(parsed_titles)
+                statement_sentiment = analyzer.polarity_scores(statement.encode('utf8'))['compound']
                 for i, r in enumerate(result):
-                    print('inside for loop')
-                    r['agree_score'] = abs(vader_agreement_score(statement,parsed_titles[i]))
-                    print('r[agree_score]')
+                    r['agree_score'] = abs(statement_sentiment-analyzer.polarity_score(parsed_titles[i].encode('utf8'))['compound'])
                     r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
                 result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
-                for r in result:
-                    print(r['title'],r['agree_score'],r['relevance_score'],r['ranking_score'])
             
             titles = [res['title'] for res in result]
             encoded_titles = model.encode(titles)
-            embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
+            embeds = embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
                 res['title'] = str(res['title'])
@@ -87,8 +76,9 @@ def search():
             for post in data:
                 words = post['keywords']
                 post['keywords'] = list(words)
+                author = post['author']
+                post['top_comments'] = list(filter(lambda x: x['author']!=author,post['top_comments']))
                 for comment in post['top_comments']:
-                    
                     if comment in post['delta_comments']:
                         comment['ranking_score'] = 5 * comment['score']
                     else:
