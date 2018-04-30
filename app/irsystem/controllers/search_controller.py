@@ -48,7 +48,7 @@ def search():
         encoded_titles = model.encode(titles)
         embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
         for i, res in enumerate(result):
-            res['coordinate'] = embeds[i]
+            res['coordinate'] = list(embeds[i])
         
         for post in data:
             words = post['keywords']
