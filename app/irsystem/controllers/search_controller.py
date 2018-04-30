@@ -76,7 +76,7 @@ def search():
             
             titles = [res['title'] for res in result]
             encoded_titles = model.encode(titles)
-            embeds = PCA(n_components=2).fit_transform(encoded_titles)
+            embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
                 res['title'] = str(res['title'])
