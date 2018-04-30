@@ -9,6 +9,18 @@ $(".more").toggle(function(){
 var $el, $ps, $up, totalHeight;
 $(document).ready(function(){
 	console.log("document ready");
+	var list = true;
+	$("#transition").click(function() {
+		if (list == true){
+			transition();
+			list = false;
+		}
+		else{
+			listView();
+			console.log('making list');
+			list = true;
+		}
+	});
 
 	$(".read-more .button").click(function(){
 		console.log("read more clicked");
