@@ -51,6 +51,9 @@ def search():
             embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
             for i, res in enumerate(result):
                 res['coordinate'] = list(embeds[i])
+                res['title'] = str(res['title'])
+                for comment in res['top_comments']:
+                    comment['body'] = str(comment['body'])
             
             for post in data:
                 words = post['keywords']
