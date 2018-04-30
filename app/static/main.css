@@ -120,6 +120,20 @@ form {
 h3 {
     text-align: center;
 }
+
+div.tooltip {   
+    position: absolute;         
+    text-align: center;         
+    width: auto;                    
+    height: auto;                   
+    padding: 5px;               
+    font: 12px sans-serif;      
+    background: lightgray;  
+    border: 0px;        
+    border-radius: 8px;         
+    pointer-events: none;           
+}
+
 h4 {
     padding-right: 5%;
 }
