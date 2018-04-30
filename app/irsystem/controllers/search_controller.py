@@ -4,7 +4,6 @@ import torch
 import markdown2
 import re
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import normalize
 
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
@@ -77,7 +76,7 @@ def search():
             
             titles = [res['title'] for res in result]
             encoded_titles = model.encode(titles)
-            embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
+            embeds = PCA(n_components=2).fit_transform(encoded_titles)
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
                 res['title'] = str(res['title'])
