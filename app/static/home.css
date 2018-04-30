@@ -30,6 +30,13 @@
     bottom:2%;
     right:2%;
 }
+.topic-div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 40px;
+}
 .btn{
     background-color: #285C79;
     border: none;
@@ -57,7 +64,6 @@
     color: #3D88B2;
     font-family: SanFrancisco;
     font-size: 60px;
-    margin-bottom: 40px;
 }
 .flex {
     display: flex;
@@ -73,7 +79,18 @@
 .comment{
     margin-top: 10px;
 }
-#input {
+.topic-input {
+    width: 220px !important;
+    font-size: 30px !important;
+}
+.inputs {
     font-family: SanFrancisco;
     font-size: 18px;
+}
+.op-input {
+    width: 500px !important;
+}
+h1 {
+    margin: 0;
+    margin-right: 25px;
 }
