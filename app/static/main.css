@@ -53,7 +53,7 @@ form {
 }
 #header-span {
     font-size: 22px;
-    margin-right: 2%;
+    margin-right: 1%;
 }
 @font-face {
     font-family: Static;
@@ -74,7 +74,7 @@ form {
     background-color: #285C79;
     border: none;
     color: white;
-    font-size: 18px;
+    font-size: 15px;
     font-family: SanFrancisco;
     padding: 0 30px;
     height: 34px;
@@ -86,7 +86,15 @@ form {
     margin-top: 10px;
 }
 .form-control {
-    width: 70%;
+    font-size: 14px;
+}
+.topic-input {
+    width: 15% !important;
+    font-size: 20px !important;
+    margin-right: 12%;
+}
+.op-input {
+    width: 35% !important;
 }
 .jumbotron p{
     font-size: 15px;
@@ -111,4 +119,21 @@ form {
 }
 h3 {
     text-align: center;
+}
+
+div.tooltip {   
+    position: absolute;         
+    text-align: center;         
+    width: auto;                    
+    height: auto;                   
+    padding: 5px;               
+    font: 12px sans-serif;      
+    background: lightgray;  
+    border: 0px;        
+    border-radius: 8px;         
+    pointer-events: none;           
+}
+
+h4 {
+    padding-right: 5%;
 }

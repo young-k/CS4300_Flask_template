@@ -6,6 +6,7 @@ venv
 *.zip
 */.ipynb_checkpoints/
 migrations 
+infersent.allnli.pickle
 vagrant/.vagrant
 vagrant/site.retry
 vagrant/a4keypair.pem
