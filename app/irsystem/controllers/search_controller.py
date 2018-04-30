@@ -27,7 +27,7 @@ model = torch.load('./semantics/infersent.allnli.pickle', map_location='cpu')
 model.set_glove_path('./data/glove.840B.300d.txt')
 model.build_vocab_k_words(K=100000)
 
-##vaderSentiment
+# vaderSentiment
 analyzer = SentimentIntensityAnalyzer()
 
 @irsystem.route('/', methods=['GET'])
@@ -66,15 +66,15 @@ def search():
         output_message = 'Your search: ' + query
         result = topic_search(topic, data, glove, dt_matrix, vocab)
         if len(result) > 0:
-            #VADER RANKING
+            # VADER RANKING
             if statement != '':
                 parsed_titles = [r['title'] for r in result]
                 statement_sentiment = analyzer.polarity_scores(statement.encode('utf8'))['compound']
                 for i, r in enumerate(result):
                     r['agree_score'] = abs(statement_sentiment-analyzer.polarity_scores(parsed_titles[i].encode('utf8'))['compound'])
-                    r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
+                    r['ranking_score'] = r['relevance_score'] * (1 - r['agree_score'])
                 result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
-            titles = [res['title'] for res in result]
+            titles = [res['title'] for res in result] + [statement]
             encoded_titles = model.encode(titles)
             embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
@@ -87,7 +87,7 @@ def search():
                 words = post['keywords']
                 post['keywords'] = list(words)
                 author = post['author']
-                post['top_comments'] = list(filter(lambda x: x['author']!=author,post['top_comments']))
+                post['top_comments'] = list(filter(lambda x: x['author']!=author, post['top_comments']))
                 post['body'] = markdown2.markdown(post['body'])
                 for comment in post['top_comments']:
                     if comment in post['delta_comments']:
@@ -96,6 +96,7 @@ def search():
                         comment['ranking_score'] = comment['score']
                 post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
                 for comment in post['top_comments'][:5]:
-                    comment['html_body']= markdown2.markdown(comment['body'])
+                    comment['html_body'] = markdown2.markdown(comment['body'])
 
-    return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result)
+    return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result, 
+                           opinion_coor=[float(embeds[-1, 0]), float(embeds[-1, 1])])
