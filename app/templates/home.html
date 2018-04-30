@@ -18,10 +18,16 @@
     <body>
         <div class="flex">
             <form action="/results" class="form-inline global-search">
-                <h1 id="title" class="left-title"> Change My View On...</h1>
+                <div class="topic-div">
+                    <h1 id="title" class="left-title"> Change My View On</h1>
+                    <div class="form-group p_top">
+                        <input id="input" type="text" name="search" class="form-control topic-input inputs" placeholder="a topic">
+                    </div>
+                </div>
+
                 <br>
                 <div class="form-group p_top">
-                    <input id="input" type="text" name="search" class="form-control" placeholder="Enter your topic here...">
+                    <input id="input" type="text" name="opinion" class="form-control inputs op-input" placeholder="Optional: Enter your opinion here">
                 </div>
                 <button type="submit" class="btn"> Search </button>
             </form>

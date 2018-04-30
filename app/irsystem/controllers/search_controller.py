@@ -57,9 +57,8 @@ def unicode_replace(string):
 @irsystem.route('results', methods=['GET'])
 def search():
     query = request.args.get('search')
-    split_query = query.split('|')
-    topic = split_query[0]
-    statement = split_query[1]
+    topic = query
+    statement = request.args.get('opinion', '')
     if not query:
         result = []
         output_message = ''
