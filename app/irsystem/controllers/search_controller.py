@@ -87,6 +87,7 @@ def search():
             for post in data:
                 words = post['keywords']
                 post['keywords'] = list(words)
+                post['body'] = markdown2.markdown(post['body'])
                 for comment in post['top_comments']:
                     
                     if comment in post['delta_comments']:
