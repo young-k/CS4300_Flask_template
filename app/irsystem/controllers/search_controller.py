@@ -3,6 +3,7 @@ import sys
 import torch
 import markdown2
 import re
+import numpy as np
 from sklearn.decomposition import PCA
 
 from app.irsystem.models.helpers import *
