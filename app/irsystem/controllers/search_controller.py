@@ -42,7 +42,7 @@ def home():
   return render_template('home.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
 
 def unicode_replace(string):
-    string = string.replace('/u', '&#')
+    string = string.replace('\u', '&#')
     idxs = [i for i, j in enumerate(string) if j == '#']
     orig_len = len(string)
     ctr = 0
