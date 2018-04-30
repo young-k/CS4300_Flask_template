@@ -71,7 +71,7 @@ def search():
                 parsed_titles = [r['title'] for r in result]
                 statement_sentiment = analyzer.polarity_scores(statement.encode('utf8'))['compound']
                 for i, r in enumerate(result):
-                    r['agree_score'] = abs(statement_sentiment-analyzer.polarity_score(parsed_titles[i].encode('utf8'))['compound'])
+                    r['agree_score'] = abs(statement_sentiment-analyzer.polarity_scores(parsed_titles[i].encode('utf8'))['compound'])
                     r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
                 result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
             titles = [res['title'] for res in result]
