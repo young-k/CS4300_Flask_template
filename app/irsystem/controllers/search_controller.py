@@ -55,12 +55,12 @@ def search():
             words = post['keywords']
             post['keywords'] = list(words)
             for comment in post['top_comments']:
-                comment['ranking_score'] = comment['score']
+                
                 if comment in post['delta_comments']:
-                    comment['ranking_score'] *= 5
-                    print('delta_comment found')
+                    comment['ranking_score'] = 5 * comment['score']
+                else:
+                    comment['ranking_score'] = comment['score']
             post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
             for comment in post['top_comments'][:5]:
                 comment['html_body']= markdown2.markdown(comment['body'])
-                print(comment['html_body'])
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result)
