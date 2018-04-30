@@ -66,6 +66,8 @@ def search():
         output_message = 'Your search: ' + query
         result = topic_search(topic, data, glove, dt_matrix, vocab)
         if len(result) > 0:
+            # truncate results to top 21
+            result = result[:21]
             # VADER RANKING
             if statement != '':
                 parsed_titles = [r['title'] for r in result]
