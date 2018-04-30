@@ -45,22 +45,23 @@ def search():
     else:
         output_message = 'Your search: ' + query
         result = topic_search(query, data, glove, dt_matrix, vocab)
-        titles = [res['title'] for res in result]
-        encoded_titles = model.encode(titles)
-        embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
-        for i, res in enumerate(result):
-            res['coordinate'] = list(embeds[i])
-        
-        for post in data:
-            words = post['keywords']
-            post['keywords'] = list(words)
-            for comment in post['top_comments']:
-                
-                if comment in post['delta_comments']:
-                    comment['ranking_score'] = 5 * comment['score']
-                else:
-                    comment['ranking_score'] = comment['score']
-            post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
-            for comment in post['top_comments'][:5]:
-                comment['html_body']= markdown2.markdown(comment['body'])
+        if len(result) > 0:
+            titles = [res['title'] for res in result]
+            encoded_titles = model.encode(titles)
+            embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
+            for i, res in enumerate(result):
+                res['coordinate'] = list(embeds[i])
+            
+            for post in data:
+                words = post['keywords']
+                post['keywords'] = list(words)
+                for comment in post['top_comments']:
+                    
+                    if comment in post['delta_comments']:
+                        comment['ranking_score'] = 5 * comment['score']
+                    else:
+                        comment['ranking_score'] = comment['score']
+                post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
+                for comment in post['top_comments'][:5]:
+                    comment['html_body']= markdown2.markdown(comment['body'])
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result)
