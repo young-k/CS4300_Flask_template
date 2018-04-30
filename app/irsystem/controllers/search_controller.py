@@ -81,7 +81,7 @@ def search():
             embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
-                res['title'] = str(res['title'])
+                res['title'] = str(res['title']).replace('CMV', '')
                 for comment in res['top_comments']:
                     comment['body'] = unicode_replace(comment['body'])
 
