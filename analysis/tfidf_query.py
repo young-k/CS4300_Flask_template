@@ -24,7 +24,7 @@ def find_keywords(data, n=10):
 
 
 def topic_search(keyword, data, model, dt_matrix, vocab):
-    expanded = [keyword] + model.nearest_neighbors(keyword, n=10)
+    expanded = [keyword] + model.nearest_neighbors(keyword, n=3)
     original_weighting = 5
 
     def _is_relevant(sample_post):
