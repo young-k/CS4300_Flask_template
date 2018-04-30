@@ -28,12 +28,13 @@ function grid(d){
 }
 
 function openMod(d){
+    console.log('hi')
 	console.log(d);
 	d3.select("#modalLabel").html(d['title']);
 	d3.select(".modal-body").append("ul").attr("class", 'list-group');
 	var max;
-	if(d['comments'].length < 5){
-		max = d['comments'].length;
+	if(d['top_comments'].length < 5){
+		max = d['top_comments'].length;
 	}
 	else{
 		max = 5;
@@ -41,8 +42,8 @@ function openMod(d){
 	d3.select(".modal-body").html("");
 	for(var i = 0; i < max; i++){
 		var item = d3.select(".modal-body").append("li").attr("class", 'list-group-item comment preview');
-		item.append("p").attr("class", "comment-txt").html(d['comments'][i]['comment'])
-		if(d['comments'][i]['comment'].length > 620){
+		item.append("p").attr("class", "comment-txt").html(d['top_comments'][i]['html_body'])
+		if(d['top_comments'][i]['body'].length > 620){
 			var p = item.append("p").attr("class",'read-more');
 			p.append("a").attr("class", 'button')
 			.html("[+]")
@@ -87,6 +88,7 @@ var groups = svg.selectAll(".groups")
     .attr("data-toggle", "modal")
     .attr("data-target", "#exampleModal")
     .on("mouseover", function () {
+        console.log('mouseover')
     	var t = d3.select(this);
     	t.select("circle").attr("stroke", "#656565");
     	t.style("cursor", "pointer"); 
@@ -96,6 +98,7 @@ var groups = svg.selectAll(".groups")
     	.attr("stroke",  "#ddd");
     })
     .on("click", function(d) {
+        console.log('clicked')
 		openMod(d);		
 	}); 
 
