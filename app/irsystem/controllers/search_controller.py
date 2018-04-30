@@ -36,7 +36,7 @@ def vader_agreement_score(s1,s2):
     p1 = analyzer.polarity_scores(s1.encode('utf8'))
     p2 = analyzer.polarity_scores(s2.encode('utf8'))
     return p1['compound'] - p2['compound']
-    
+
 @irsystem.route('/', methods=['GET'])
 def home():
   query = request.args.get('search')
@@ -47,6 +47,19 @@ def home():
     output_message = 'Your search: ' + query
     result = topic_search(query, data, glove, dt_matrix, vocab)
   return render_template('home.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
+
+def unicode_replace(string):
+    string = string.replace('/u', '&#')
+    idxs = [i for i, j in enumerate(string) if j == '#']
+    orig_len = len(string)
+    ctr = 0
+    for elt in idxs:
+        if orig_len == elt + 5:
+            string += ';'
+        else:
+            string = string[0:(elt + 5 + ctr)] + ';' + string[(elt + 5 + ctr):]
+            ctr += 1
+    return(string)
 
 @irsystem.route('results', methods=['GET'])
 def search():
@@ -61,7 +74,7 @@ def search():
         output_message = 'Your search: ' + query
         result = topic_search(topic, data, glove, dt_matrix, vocab)
         if len(result) > 0:
-            #VADER RANKING 
+            #VADER RANKING
             if statement != '':
                 print('here')
                 parsed_titles = [r['title'] for r in result]
@@ -74,7 +87,7 @@ def search():
                 result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
                 for r in result:
                     print(r['title'],r['agree_score'],r['relevance_score'],r['ranking_score'])
-            
+
             titles = [res['title'] for res in result]
             encoded_titles = model.encode(titles)
             embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
@@ -82,14 +95,14 @@ def search():
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
                 res['title'] = str(res['title'])
                 for comment in res['top_comments']:
-                    comment['body'] = re.sub(r'$\u.*', r'&#;',str(comment['body']))
-            
+                    comment['body'] = unicode_replace(comment['body'])
+
             for post in data:
                 words = post['keywords']
                 post['keywords'] = list(words)
                 post['body'] = markdown2.markdown(post['body'])
                 for comment in post['top_comments']:
-                    
+
                     if comment in post['delta_comments']:
                         comment['ranking_score'] = 5 * comment['score']
                     else:
@@ -97,5 +110,5 @@ def search():
                 post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
                 for comment in post['top_comments'][:5]:
                     comment['html_body']= markdown2.markdown(comment['body'])
-              
+
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result)
