@@ -83,7 +83,7 @@ def search():
                 for comment in res['top_comments']:
                     comment['body'] = unicode_replace(comment['body'])
 
-            for post in data:
+            for post in result:
                 words = post['keywords']
                 post['keywords'] = list(words)
                 author = post['author']
