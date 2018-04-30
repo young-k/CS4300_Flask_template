@@ -32,6 +32,7 @@ analyzer = SentimentIntensityAnalyzer()
 
 
 def vader_agreement_score(s1,s2):
+    print('inside agreement score')
     p1 = analyzer.polarity_scores(s1.encode('utf8'))
     p2 = analyzer.polarity_scores(s2.encode('utf8'))
     return p1['compound'] - p2['compound']
@@ -58,24 +59,23 @@ def search():
         output_message = ''
     else:
         output_message = 'Your search: ' + query
-        result = topic_search(query, data, glove, dt_matrix, vocab)
-        if statement != '':
-            for i, r in enumerate(result):
-                r['agree_score'] = abs(vader_agreement_score(statement,parsed_titles[i]))
-                r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
-            result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
-            print('#######################')
-            print('#######################')
-            print('#######################')
-            print(statement)
-            print('#######################')
-            print('#######################')
-            print('#######################')
-            for r in result:
-                print(r['title'],r['agree_score'],r['relevance_score'],r['ranking_score'])
+        result = topic_search(topic, data, glove, dt_matrix, vocab)
         if len(result) > 0:
+            #VADER RANKING 
+            if statement != '':
+                print('here')
+                parsed_titles = [r['title'] for r in result]
+                print(parsed_titles)
+                for i, r in enumerate(result):
+                    print('inside for loop')
+                    r['agree_score'] = abs(vader_agreement_score(statement,parsed_titles[i]))
+                    print('r[agree_score]')
+                    r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
+                result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
+                for r in result:
+                    print(r['title'],r['agree_score'],r['relevance_score'],r['ranking_score'])
+            
             titles = [res['title'] for res in result]
-            parsed_titles = [r['title'].replace('CMV', '') for r in result]
             encoded_titles = model.encode(titles)
             embeds = normalize(PCA(n_components=2).fit_transform(encoded_titles))
             for i, res in enumerate(result):
