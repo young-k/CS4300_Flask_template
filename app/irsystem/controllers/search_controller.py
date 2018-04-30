@@ -5,7 +5,6 @@ import markdown2
 import re
 import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import normalize
 
 from app.irsystem.models.helpers import *
 from app.irsystem.models.helpers import NumpyEncoder as NumpyEncoder
@@ -30,7 +29,7 @@ model.build_vocab_k_words(K=100000)
 
 ##vaderSentiment
 analyzer = SentimentIntensityAnalyzer()
-    
+
 @irsystem.route('/', methods=['GET'])
 def home():
   query = request.args.get('search')
@@ -41,6 +40,19 @@ def home():
     output_message = 'Your search: ' + query
     result = topic_search(query, data, glove, dt_matrix, vocab)
   return render_template('home.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
+
+def unicode_replace(string):
+    string = string.replace('/u', '&#')
+    idxs = [i for i, j in enumerate(string) if j == '#']
+    orig_len = len(string)
+    ctr = 0
+    for elt in idxs:
+        if orig_len == elt + 5:
+            string += ';'
+        else:
+            string = string[0:(elt + 5 + ctr)] + ';' + string[(elt + 5 + ctr):]
+            ctr += 1
+    return(string)
 
 @irsystem.route('results', methods=['GET'])
 def search():
@@ -55,7 +67,7 @@ def search():
         output_message = 'Your search: ' + query
         result = topic_search(topic, data, glove, dt_matrix, vocab)
         if len(result) > 0:
-            #VADER RANKING 
+            #VADER RANKING
             if statement != '':
                 parsed_titles = [r['title'] for r in result]
                 statement_sentiment = analyzer.polarity_scores(statement.encode('utf8'))['compound']
@@ -63,21 +75,21 @@ def search():
                     r['agree_score'] = abs(statement_sentiment-analyzer.polarity_score(parsed_titles[i].encode('utf8'))['compound'])
                     r['ranking_score'] = r['relevance_score'] * (1-r['agree_score'])
                 result = sorted(result, key=lambda x: x['ranking_score'],reverse=True)
-            
             titles = [res['title'] for res in result]
             encoded_titles = model.encode(titles)
-            embeds = embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
+            embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
                 res['title'] = str(res['title'])
                 for comment in res['top_comments']:
-                    comment['body'] = re.sub(r'$\u.*', r'&#;',str(comment['body']))
-            
+                    comment['body'] = unicode_replace(comment['body'])
+
             for post in data:
                 words = post['keywords']
                 post['keywords'] = list(words)
                 author = post['author']
                 post['top_comments'] = list(filter(lambda x: x['author']!=author,post['top_comments']))
+                post['body'] = markdown2.markdown(post['body'])
                 for comment in post['top_comments']:
                     if comment in post['delta_comments']:
                         comment['ranking_score'] = 5 * comment['score']
@@ -86,5 +98,5 @@ def search():
                 post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
                 for comment in post['top_comments'][:5]:
                     comment['html_body']= markdown2.markdown(comment['body'])
-              
+
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result)

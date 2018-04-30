@@ -31,6 +31,8 @@ function openMod(d){
     console.log('hi')
 	console.log(d);
 	d3.select("#modalLabel").html(d['title']);
+	d3.select("#postURL").attr("href", d['url']);
+	d3.select("#postContent").html(d['body']);
 	d3.select(".modal-body").append("ul").attr("class", 'list-group');
 	var max;
 	if(d['top_comments'].length < 5){
