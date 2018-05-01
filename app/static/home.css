@@ -12,8 +12,8 @@
         font-family: SanFrancisco;
         margin-bottom: 10%;
         /*background-color: #04002d;*/
-        background-color: #060040;
-        color: white;
+        /*background-color: #060040;*/
+        /*color: white;*/
     }
     .global-search {
         text-align:center;
@@ -41,7 +41,8 @@
     margin-bottom: 40px;
 }
 .btn{
-    background-color: #1aaaf0;
+    /*background-color: #1aaaf0;*/
+    background-color: #285C79;
     border: none;
     color: white;
     font-size: 18px;
@@ -69,9 +70,9 @@
     src: url(AvenirLTStd-Roman.otf);
 }
 #title{
-    /*color: #3D88B2;*/
-    color: white;
-    font-family: Avenir;
+    color: #3D88B2;
+    /*color: white;*/
+    font-family: SanFrancisco;
     font-size: 60px;
 }
 .flex {
