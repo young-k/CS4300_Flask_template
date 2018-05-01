@@ -217,12 +217,8 @@ function openMod(d){
 				    
 				$up.css({
 				  // Set height to prevent instant jumpdown when max height is removed
-				  "height": $up.height(),
 				  "max-height": 9999
 				})
-				.animate({
-				  "height": totalHeight
-				});
 				// fade out read-more
 				$p.fadeOut();
 				// prevent jump-down

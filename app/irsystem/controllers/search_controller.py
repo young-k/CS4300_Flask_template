@@ -42,7 +42,7 @@ def home():
   return render_template('home.html', name=project_name, net_id=net_id, output_message=output_message, data=result)
 
 def unicode_replace(string):
-    string = string.replace('/u', '&#')
+    string = string.replace('\u', '&#')
     idxs = [i for i, j in enumerate(string) if j == '#']
     orig_len = len(string)
     ctr = 0
@@ -81,7 +81,7 @@ def search():
             embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
-                res['title'] = str(res['title'])
+                res['title'] = str(res['title']).replace('CMV', '')
                 for comment in res['top_comments']:
                     comment['body'] = unicode_replace(comment['body'])
 
@@ -99,6 +99,9 @@ def search():
                 post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
                 for comment in post['top_comments'][:5]:
                     comment['html_body'] = markdown2.markdown(comment['body'])
+        
+        opinion_coor = [float(embeds[-1, 0]), float(embeds[-1, 1])] if len(result) > 0 else None
+         
 
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result, 
-                           opinion_coor=[float(embeds[-1, 0]), float(embeds[-1, 1])])
+                           opinion_coor=opinion_coor)
