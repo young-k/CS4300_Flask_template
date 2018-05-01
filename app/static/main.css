@@ -82,7 +82,7 @@ form {
 }
 #transition{
     height: 32px;
-    padding: 8px;
+    padding: 0 8px;
     /*background-color: #1aaaf0;*/
     background-color: #285C79;
     border: none;
