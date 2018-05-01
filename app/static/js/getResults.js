@@ -90,6 +90,7 @@ function transition(){
 		.transition().duration(1200)
 		.attr("cx", function(d){return newX(d['coordinate'][0]);})
 		.attr("cy", function(d){return newY(d['coordinate'][1]);})
+		.attr("stroke-width", 2)
 		.attr("r", 30);
 
 	updateCircles
@@ -108,34 +109,42 @@ function transition(){
 		.on("mouseout", function(d){
 			var c = d3.select(this);
 			c.attr("stroke",  "none")
-			.attr("fill-opacity", 0.5);
+			.attr("fill-opacity", 0.5)
+			.attr("stroke-width", 2);
 
 			div.style("opacity", 0);	
 		});
 
-	svg.append("circle").attr("fill-opacity", 0.0).transition().duration(1200)
-		.attr("cx", newX(opinion_coordinates[0]))
-		.attr("cy", newY(opinion_coordinates[1]))
-		.attr("id", "opinion-point")
-		.attr("r", 30)
-		.style("fill", "grey")
-		.attr("fill-opacity", 0.8)
-		.on("mouseover", function(){
-			console.log(q);
-			// console.log(s);
-		});
+	if(s){
+		var op = svg.append("circle").attr("fill-opacity", 0.0);
+		op.transition().duration(1200)
+			.attr("cx", newX(opinion_coordinates[0]))
+			.attr("cy", newY(opinion_coordinates[1]))
+			.attr("id", "opinion-point")
+			.attr("r", 30)
+			.style("fill", "grey")
+			.attr("fill-opacity", 0.5);
 
-	console.log(opinion_coordinates);
+		op.on("mouseover", function(){
+			var c = d3.select(this);
 
-	// svg.append("g")
-	// 	.attr("class", "x axis")
-	// 	.attr("transform", "translate(0," + newY.range()[0] / 2 + ")")
-	// 	.call(d3.axisBottom(newX).ticks(5));
+			c.attr("stroke", "white")
+			.attr("stroke-width", 4);
 
-	// svg.append("g")
-	// 	.attr("class", "y axis")
-	// 	.attr("transform", "translate(" + newX.range()[1] / 2 + ", 0)")
-	// 	.call(d3.axisLeft(newY).ticks(5));
+			div.style("opacity", 0.9);
+			div.html(s)	
+	        .style("left", (d3.event.pageX + 30) + "px")		
+	        .style("top", (d3.event.pageY - 28) + "px");
+		})
+		.on("mouseout", function(d){
+				var c = d3.select(this);
+				c.attr("stroke",  "none")
+				.attr("fill-opacity", 0.5)
+				.attr("stroke-width", 2);
+
+				div.style("opacity", 0);	
+		});;	
+	}
 
 }
 
@@ -147,7 +156,8 @@ function listView(){
 		.transition().duration(1200)
 		.attr("cx", function(d, i) { return x(d['grid'][0]); })
 		.attr("cy", function(d, i) { return y(d['grid'][1]); })
-		.attr("r", 120);
+		.attr("r", 120)
+		.attr("stroke-width", 4);
 
 	updateCircles.on('mouseover', null);
 
@@ -158,8 +168,7 @@ function listView(){
 	.attr("height", 150)
 	.text(function(d){return d['title'];})
 	.attr("id", function(d,i) {return "text-"+i;})
-	.attr("opacity", 0.0)
-	.style("fill", "white");
+	.attr("opacity", 0.0);
 	// .on("end", function(d,i){ 
 	// 	// console.log()
 	// 	// d3plus.textwrap()

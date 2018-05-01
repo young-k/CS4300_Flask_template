@@ -104,4 +104,4 @@ def search():
          
 
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result, 
-                           opinion_coor=opinion_coor)
+                           opinion_coor=opinion_coor, statement=statement)
