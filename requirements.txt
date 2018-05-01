@@ -1,5 +1,5 @@
 alembic==0.9.9
-appdev.py==0.0.1
+#appdev.py==0.0.1
 appnope==0.1.0
 backports-abc==0.5
 backports.functools-lru-cache==1.5

@@ -18,6 +18,24 @@ var y = d3.scaleLinear()
 	.range([150, 2700])
 	.domain([0, 10]);
 
+var defs = svg.append("defs");
+
+defs.append("radialGradient")
+	.attr("id", "result-gradient")
+	.attr("cx", "50%")	//not really needed, since 50% is the default
+	.attr("cy", "50%")	//not really needed, since 50% is the default
+	.attr("r", "50%")	//not really needed, since 50% is the default
+	.selectAll("stop")
+	.data([
+			{offset: "0%", color: "#1aaaf0"},
+			{offset: "50%", color: "#4bbdf4"},
+			{offset: "90%", color: "#9cdbf9"}, //#4bbdf4
+			{offset: "100%", color: "#ffffff"}
+		])
+	.enter().append("stop")
+	.attr("offset", function(d) { return d.offset; })
+	.attr("stop-color", function(d) { return d.color; });
+
 d3.selection.prototype.moveToFront = function() {  
       return this.each(function(){
         this.parentNode.appendChild(this);
@@ -46,15 +64,17 @@ function transition(){
 	for(var i = 0; i < max; i++){
 		coords = coords.concat(views[i]['coordinate']);
 	}
+	coords = coords.concat(opinion_coordinates);
 	
 	var coordMax = Math.max(Math.abs(d3.max(coords)), Math.abs(d3.min(coords)));
+	var clusterPadding = Math.random()+0.5;
 	var newX = d3.scaleLinear()
-		.range([300, width-300])
-		.domain([-1*coordMax, coordMax]);
+		.range([200, width-200])
+		.domain([-1*coordMax-clusterPadding, coordMax+clusterPadding]);
 
 	var newY = d3.scaleLinear()
-		.range([50, 600])
-		.domain([-1*coordMax, coordMax]);
+		.range([20, 400])
+		.domain([-1*coordMax-clusterPadding, coordMax+clusterPadding]);
 
 	var xAxis = d3.svg.axis().scale(newX);
 	var yAxis = d3.svg.axis().scale(newY);
@@ -88,17 +108,20 @@ function transition(){
 		.on("mouseout", function(d){
 			var c = d3.select(this);
 			c.attr("stroke",  "none")
-			.attr("fill-opacity", 0.4);
+			.attr("fill-opacity", 0.9);
 
 			div.style("opacity", 0);	
 		});
 
-	svg.append("circle").attr("fill-opacity", 0.0).transition().duration(300)
-		.attr("cx", newX(0))
-		.attr("cy", newY(0))
+	svg.append("circle").attr("fill-opacity", 0.0).transition().duration(1200)
+		.attr("cx", newX(opinion_coordinates[0]))
+		.attr("cy", newY(opinion_coordinates[1]))
 		.attr("id", "opinion-point")
 		.attr("r", 30)
-		.attr("fill-opacity", 0.5);
+		.style("fill", "grey")
+		.attr("fill-opacity", 0.8);
+
+	console.log(opinion_coordinates);
 
 	// svg.append("g")
 	// 	.attr("class", "x axis")
@@ -122,6 +145,8 @@ function listView(){
 		.attr("cy", function(d, i) { return y(d['grid'][1]); })
 		.attr("r", 120);
 
+	updateCircles.on('mouseover', null);
+
 	groups.append("text").transition()
 	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
 	.attr("y", function(d, i) { return y(d['grid'][1])-75; })
@@ -129,7 +154,8 @@ function listView(){
 	.attr("height", 150)
 	.text(function(d){return d['title'];})
 	.attr("id", function(d,i) {return "text-"+i;})
-	.attr("opacity", 0.0);
+	.attr("opacity", 0.0)
+	.style("fill", "white");
 	// .on("end", function(d,i){ 
 	// 	// console.log()
 	// 	// d3plus.textwrap()
@@ -150,7 +176,7 @@ function listView(){
 			  .draw();
 			d3.select('#text-'+i).transition().duration(1000).attr("opacity", 1.0);
 		}}, 
-	1100)
+	1200)
 
 }
 
@@ -233,17 +259,21 @@ groups.append("circle")
 	.attr("cx", function(d, i) { return x(d['grid'][0]); })
 	.attr("cy", function(d, i) { return y(d['grid'][1]); })
 	.attr("r", 120)
-	.attr("fill", '#3D88B2')
-	.attr("fill-opacity", 0.3)
+	// .attr("fill", '#5ac1d0')
+	.attr("fill-opacity", 0.9)
 	.attr("stroke", "#ddd")
 	.attr("stroke-width", 4)
-	.attr("id", function(d,i) {return "node-"+i;}); 
+	.attr("id", function(d,i) {return "node-"+i;})
+	.style("fill", "url(#result-gradient)"); 
 
 groups.append("text")
 	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
 	.attr("y", function(d, i) { return y(d['grid'][1])-75; })
 	.attr("width", 150)
 	.attr("height", 150)
+	.style("font-size", "16px")
+	.style("font-weight", "bold")
+	.attr("fill", "#e2e2e2")
 	.text(function(d){return d['title']})
 	.attr("id", function(d,i) {return "text-"+i;}); 
 

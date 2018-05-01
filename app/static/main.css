@@ -2,6 +2,10 @@
     font-family: SanFrancisco;
     src: url(sanfran.otf);
 }
+@font-face {
+    font-family: Avenir;
+    src: url(AvenirLTStd-Roman.otf);
+}
 @media (min-width: 1200px) {
     .container {
         max-width: 970px;
@@ -13,9 +17,12 @@
         text-align:center;
     }
     body {
-        font-family: SanFrancisco;
+        font-family: Avenir;
         padding-top: 80px;
         padding-bottom: 15px;
+        background-color: #060040;
+         /*#04002d;*/
+        color: white;
     }
     .global-search {
         text-align:center;
@@ -31,10 +38,12 @@
     top: 0%;
     width: 100%;
     height: 70px;
-    background-color: #9BB8C9;
+    background-color: #060040;
+    border-bottom: 1px solid white;
     display: flex;
     justify-content: center;
     align-items: center;
+    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);*/
 }
 form {
     width: 100%;
@@ -63,21 +72,33 @@ form {
     color: #00D4FF;
 }
 #title{
-    font-family: Static;
+    font-family: Avenir;
     font-size: 60px;
 }
 .p_top{
     display:inline-block;
     padding-top: 0px;
 }
+#transition{
+    height: 32px;
+    padding: 8px;
+    background-color: #1aaaf0;
+    border: none;
+    font-family: SanFrancisco;
+    border: 1px solid white;
+}
+input{
+    margin-right: 8px;
+}
 .btn{
-    background-color: #285C79;
+    background-color: #1aaaf0;
     border: none;
     color: white;
     font-size: 15px;
     font-family: SanFrancisco;
     padding: 0 30px;
     height: 34px;
+    margin
 }
 .btn:hover{
     color: white;
@@ -117,13 +138,20 @@ form {
     /* "transparent" only works here because == rgba(0,0,0,0) */
     /*background-image: linear-gradient(to bottom, transparent, grey);*/
 }
+
+.modal-content{
+    color: black;
+    font-family: SanFrancisco;
+}
+
 h3 {
     text-align: center;
 }
 
 div.tooltip {   
     position: absolute;         
-    text-align: center;         
+    text-align: center;  
+    max-width: 200px;       
     width: auto;                    
     height: auto;                   
     padding: 5px;               
@@ -131,7 +159,8 @@ div.tooltip {
     background: lightgray;  
     border: 0px;        
     border-radius: 8px;         
-    pointer-events: none;           
+    pointer-events: none;   
+    font-family: Avenir;        
 }
 
 h4 {

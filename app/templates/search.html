@@ -28,7 +28,7 @@
             </form>
         </div>
         <h3> Your Query: {{ query }} </h3>
-        <button id="transition"> transition </button>
+        <button id="transition" class="btn"> Cluster by Topic </button>
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -59,6 +59,7 @@
                 post['value'] = id;
                 id++;
             }
+            var opinion_coordinates = {{opinion_coor}};
             console.log(views);
         </script>
         <script type=text/javascript src="{{url_for('static', filename='js/getResults.js')}}"></script>
