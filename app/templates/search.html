@@ -59,6 +59,8 @@
                 post['value'] = id;
                 id++;
             }
+            var q = {{query|tojson}};
+            // console.log(q);
             var opinion_coordinates = {{opinion_coor}};
             console.log(views);
         </script>

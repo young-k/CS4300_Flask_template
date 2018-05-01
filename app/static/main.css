@@ -17,10 +17,10 @@
         text-align:center;
     }
     body {
-        font-family: Avenir;
+        font-family: SanFrancisco;
         padding-top: 80px;
         padding-bottom: 15px;
-        background-color: #060040;
+        /*background-color: #060040;*/
          /*#04002d;*/
         color: white;
     }
@@ -38,7 +38,8 @@
     top: 0%;
     width: 100%;
     height: 70px;
-    background-color: #060040;
+    /*background-color: #060040;*/
+    background-color: #9BB8C9;
     border-bottom: 1px solid white;
     display: flex;
     justify-content: center;
@@ -72,7 +73,7 @@ form {
     color: #00D4FF;
 }
 #title{
-    font-family: Avenir;
+    font-family: SanFrancisco;
     font-size: 60px;
 }
 .p_top{
@@ -82,7 +83,8 @@ form {
 #transition{
     height: 32px;
     padding: 8px;
-    background-color: #1aaaf0;
+    /*background-color: #1aaaf0;*/
+    background-color: #285C79;
     border: none;
     font-family: SanFrancisco;
     border: 1px solid white;
@@ -91,7 +93,8 @@ input{
     margin-right: 8px;
 }
 .btn{
-    background-color: #1aaaf0;
+    /*background-color: #1aaaf0;*/
+    background-color: #285C79;
     border: none;
     color: white;
     font-size: 15px;
@@ -156,7 +159,7 @@ div.tooltip {
     height: auto;                   
     padding: 5px;               
     font: 12px sans-serif;      
-    background: lightgray;  
+    background: gray;  
     border: 0px;        
     border-radius: 8px;         
     pointer-events: none;   

@@ -108,7 +108,7 @@ function transition(){
 		.on("mouseout", function(d){
 			var c = d3.select(this);
 			c.attr("stroke",  "none")
-			.attr("fill-opacity", 0.9);
+			.attr("fill-opacity", 0.5);
 
 			div.style("opacity", 0);	
 		});
@@ -119,7 +119,11 @@ function transition(){
 		.attr("id", "opinion-point")
 		.attr("r", 30)
 		.style("fill", "grey")
-		.attr("fill-opacity", 0.8);
+		.attr("fill-opacity", 0.8)
+		.on("mouseover", function(){
+			console.log(q);
+			// console.log(s);
+		});
 
 	console.log(opinion_coordinates);
 
@@ -255,12 +259,12 @@ groups.append("circle")
 	.attr("cx", function(d, i) { return x(d['grid'][0]); })
 	.attr("cy", function(d, i) { return y(d['grid'][1]); })
 	.attr("r", 120)
-	// .attr("fill", '#5ac1d0')
-	.attr("fill-opacity", 0.9)
+	.attr("fill", '#3D88B2')
+	.attr("fill-opacity", 0.5)
 	.attr("stroke", "#ddd")
 	.attr("stroke-width", 4)
-	.attr("id", function(d,i) {return "node-"+i;})
-	.style("fill", "url(#result-gradient)"); 
+	.attr("id", function(d,i) {return "node-"+i;});
+	// .style("fill", "url(#result-gradient)"); 
 
 groups.append("text")
 	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
@@ -268,8 +272,8 @@ groups.append("text")
 	.attr("width", 150)
 	.attr("height", 150)
 	.style("font-size", "16px")
-	.style("font-weight", "bold")
-	.attr("fill", "#e2e2e2")
+	// .style("font-weight", "bold")
+	// .attr("fill", "#e2e2e2")
 	.text(function(d){return d['title']})
 	.attr("id", function(d,i) {return "text-"+i;}); 
 

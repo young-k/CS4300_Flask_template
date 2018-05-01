@@ -17,7 +17,7 @@ from . import *
 project_name = "Changing-Views"
 net_id = "Yuji Akimoto (ya242), Benjamin Edwards (bje43), Jacqueline Wen (jzw22), Young Kim (yk465), Zachary Brienza (zb43)"
 
-with open('./scripts/testing.txt', 'r') as f:
+with open('./scripts/testing_original.txt', 'r') as f:
     data = eval(f.read())
 
 data, dt_matrix, vocab = find_keywords(data, n=10)
@@ -81,7 +81,7 @@ def search():
             embeds = np.reshape(PCA(n_components=2).fit_transform(encoded_titles), (-1, 2))
             for i, res in enumerate(result):
                 res['coordinate'] = [float(embeds[i, 0]), float(embeds[i, 1])]
-                res['title'] = str(res['title']).replace('CMV', '')
+                res['title'] = str(res['title']).replace('CMV: ', ' ')
                 for comment in res['top_comments']:
                     comment['body'] = unicode_replace(comment['body'])
 
