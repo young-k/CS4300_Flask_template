@@ -168,7 +168,8 @@ function listView(){
 	.attr("height", 150)
 	.text(function(d){return d['title'];})
 	.attr("id", function(d,i) {return "text-"+i;})
-	.attr("opacity", 0.0);
+	.attr("opacity", 0.0)
+	.style("font-size", "16px");
 	// .on("end", function(d,i){ 
 	// 	// console.log()
 	// 	// d3plus.textwrap()
