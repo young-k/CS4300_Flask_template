@@ -99,6 +99,9 @@ def search():
                 post['top_comments'] = sorted(post['top_comments'], key=lambda x: x['ranking_score'],reverse=True)
                 for comment in post['top_comments'][:5]:
                     comment['html_body'] = markdown2.markdown(comment['body'])
+        
+        opinion_coor = [float(embeds[-1, 0]), float(embeds[-1, 1])] if len(result) > 0 else None
+         
 
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result, 
-                           opinion_coor=[float(embeds[-1, 0]), float(embeds[-1, 1])])
+                           opinion_coor=opinion_coor)
