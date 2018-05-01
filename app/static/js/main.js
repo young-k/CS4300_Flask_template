@@ -8,16 +8,17 @@ $(".more").toggle(function(){
 
 var $el, $ps, $up, totalHeight;
 $(document).ready(function(){
-	console.log("document ready");
 	var list = true;
 	$("#transition").click(function() {
+
 		if (list == true){
 			transition();
+			d3.select("#transition").html("Rank Topics");
 			list = false;
 		}
 		else{
 			listView();
-			console.log('making list');
+			d3.select("#transition").html("Cluster by Topic");
 			list = true;
 		}
 	});

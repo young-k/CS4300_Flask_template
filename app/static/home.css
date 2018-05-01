@@ -11,6 +11,9 @@
     body { 
         font-family: SanFrancisco;
         margin-bottom: 10%;
+        /*background-color: #04002d;*/
+        /*background-color: #060040;*/
+        /*color: white;*/
     }
     .global-search {
         text-align:center;
@@ -38,6 +41,7 @@
     margin-bottom: 40px;
 }
 .btn{
+    /*background-color: #1aaaf0;*/
     background-color: #285C79;
     border: none;
     color: white;
@@ -45,6 +49,7 @@
     font-family: SanFrancisco;
     height: 50px;
     padding: 0 30px;
+    margin-left: 10px;
 }
 .btn:hover{
     color: white;
@@ -60,8 +65,13 @@
     font-family: SanFrancisco;
     src: url(sanfran.otf);
 }
+@font-face {
+    font-family: Avenir;
+    src: url(AvenirLTStd-Roman.otf);
+}
 #title{
     color: #3D88B2;
+    /*color: white;*/
     font-family: SanFrancisco;
     font-size: 60px;
 }
@@ -93,4 +103,5 @@
 h1 {
     margin: 0;
     margin-right: 25px;
+    color: white;
 }

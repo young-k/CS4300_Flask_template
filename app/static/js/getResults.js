@@ -18,6 +18,24 @@ var y = d3.scaleLinear()
 	.range([150, 2700])
 	.domain([0, 10]);
 
+var defs = svg.append("defs");
+
+defs.append("radialGradient")
+	.attr("id", "result-gradient")
+	.attr("cx", "50%")	//not really needed, since 50% is the default
+	.attr("cy", "50%")	//not really needed, since 50% is the default
+	.attr("r", "50%")	//not really needed, since 50% is the default
+	.selectAll("stop")
+	.data([
+			{offset: "0%", color: "#1aaaf0"},
+			{offset: "50%", color: "#4bbdf4"},
+			{offset: "90%", color: "#9cdbf9"}, //#4bbdf4
+			{offset: "100%", color: "#ffffff"}
+		])
+	.enter().append("stop")
+	.attr("offset", function(d) { return d.offset; })
+	.attr("stop-color", function(d) { return d.color; });
+
 d3.selection.prototype.moveToFront = function() {  
       return this.each(function(){
         this.parentNode.appendChild(this);
@@ -46,15 +64,17 @@ function transition(){
 	for(var i = 0; i < max; i++){
 		coords = coords.concat(views[i]['coordinate']);
 	}
+	coords = coords.concat(opinion_coordinates);
 	
 	var coordMax = Math.max(Math.abs(d3.max(coords)), Math.abs(d3.min(coords)));
+	var clusterPadding = Math.random()+0.5;
 	var newX = d3.scaleLinear()
-		.range([300, width-300])
-		.domain([-1*coordMax, coordMax]);
+		.range([200, width-200])
+		.domain([-1*coordMax-clusterPadding, coordMax+clusterPadding]);
 
 	var newY = d3.scaleLinear()
-		.range([50, 600])
-		.domain([-1*coordMax, coordMax]);
+		.range([20, 400])
+		.domain([-1*coordMax-clusterPadding, coordMax+clusterPadding]);
 
 	var xAxis = d3.svg.axis().scale(newX);
 	var yAxis = d3.svg.axis().scale(newY);
@@ -70,6 +90,7 @@ function transition(){
 		.transition().duration(1200)
 		.attr("cx", function(d){return newX(d['coordinate'][0]);})
 		.attr("cy", function(d){return newY(d['coordinate'][1]);})
+		.attr("stroke-width", 2)
 		.attr("r", 30);
 
 	updateCircles
@@ -88,27 +109,42 @@ function transition(){
 		.on("mouseout", function(d){
 			var c = d3.select(this);
 			c.attr("stroke",  "none")
-			.attr("fill-opacity", 0.4);
+			.attr("fill-opacity", 0.5)
+			.attr("stroke-width", 2);
 
 			div.style("opacity", 0);	
 		});
 
-	svg.append("circle").attr("fill-opacity", 0.0).transition().duration(300)
-		.attr("cx", newX(0))
-		.attr("cy", newY(0))
-		.attr("id", "opinion-point")
-		.attr("r", 30)
-		.attr("fill-opacity", 0.5);
+	if(s){
+		var op = svg.append("circle").attr("fill-opacity", 0.0);
+		op.transition().duration(1200)
+			.attr("cx", newX(opinion_coordinates[0]))
+			.attr("cy", newY(opinion_coordinates[1]))
+			.attr("id", "opinion-point")
+			.attr("r", 30)
+			.style("fill", "grey")
+			.attr("fill-opacity", 0.5);
 
-	// svg.append("g")
-	// 	.attr("class", "x axis")
-	// 	.attr("transform", "translate(0," + newY.range()[0] / 2 + ")")
-	// 	.call(d3.axisBottom(newX).ticks(5));
+		op.on("mouseover", function(){
+			var c = d3.select(this);
 
-	// svg.append("g")
-	// 	.attr("class", "y axis")
-	// 	.attr("transform", "translate(" + newX.range()[1] / 2 + ", 0)")
-	// 	.call(d3.axisLeft(newY).ticks(5));
+			c.attr("stroke", "white")
+			.attr("stroke-width", 4);
+
+			div.style("opacity", 0.9);
+			div.html(s)	
+	        .style("left", (d3.event.pageX + 30) + "px")		
+	        .style("top", (d3.event.pageY - 28) + "px");
+		})
+		.on("mouseout", function(d){
+				var c = d3.select(this);
+				c.attr("stroke",  "none")
+				.attr("fill-opacity", 0.5)
+				.attr("stroke-width", 2);
+
+				div.style("opacity", 0);	
+		});;	
+	}
 
 }
 
@@ -120,7 +156,10 @@ function listView(){
 		.transition().duration(1200)
 		.attr("cx", function(d, i) { return x(d['grid'][0]); })
 		.attr("cy", function(d, i) { return y(d['grid'][1]); })
-		.attr("r", 120);
+		.attr("r", 120)
+		.attr("stroke-width", 4);
+
+	updateCircles.on('mouseover', null);
 
 	groups.append("text").transition()
 	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
@@ -129,7 +168,8 @@ function listView(){
 	.attr("height", 150)
 	.text(function(d){return d['title'];})
 	.attr("id", function(d,i) {return "text-"+i;})
-	.attr("opacity", 0.0);
+	.attr("opacity", 0.0)
+	.style("font-size", "16px");
 	// .on("end", function(d,i){ 
 	// 	// console.log()
 	// 	// d3plus.textwrap()
@@ -150,7 +190,7 @@ function listView(){
 			  .draw();
 			d3.select('#text-'+i).transition().duration(1000).attr("opacity", 1.0);
 		}}, 
-	1100)
+	1200)
 
 }
 
@@ -191,12 +231,8 @@ function openMod(d){
 				    
 				$up.css({
 				  // Set height to prevent instant jumpdown when max height is removed
-				  "height": $up.height(),
 				  "max-height": 9999
 				})
-				.animate({
-				  "height": totalHeight
-				});
 				// fade out read-more
 				$p.fadeOut();
 				// prevent jump-down
@@ -234,16 +270,20 @@ groups.append("circle")
 	.attr("cy", function(d, i) { return y(d['grid'][1]); })
 	.attr("r", 120)
 	.attr("fill", '#3D88B2')
-	.attr("fill-opacity", 0.3)
+	.attr("fill-opacity", 0.5)
 	.attr("stroke", "#ddd")
 	.attr("stroke-width", 4)
-	.attr("id", function(d,i) {return "node-"+i;}); 
+	.attr("id", function(d,i) {return "node-"+i;});
+	// .style("fill", "url(#result-gradient)"); 
 
 groups.append("text")
 	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
 	.attr("y", function(d, i) { return y(d['grid'][1])-75; })
 	.attr("width", 150)
 	.attr("height", 150)
+	.style("font-size", "16px")
+	// .style("font-weight", "bold")
+	// .attr("fill", "#e2e2e2")
 	.text(function(d){return d['title']})
 	.attr("id", function(d,i) {return "text-"+i;}); 
 
