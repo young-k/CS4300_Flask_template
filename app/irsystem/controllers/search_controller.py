@@ -101,7 +101,7 @@ def search():
                     comment['html_body'] = markdown2.markdown(comment['body'])
         
         opinion_coor = [float(embeds[-1, 0]), float(embeds[-1, 1])] if len(result) > 0 else None
-         
-
+        if statement == '':
+            statement = "N/A"
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result, 
                            opinion_coor=opinion_coor, statement=statement)

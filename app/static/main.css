@@ -101,7 +101,6 @@ input{
     font-family: SanFrancisco;
     padding: 0 30px;
     height: 34px;
-    margin
 }
 .btn:hover{
     color: white;
@@ -147,8 +146,9 @@ input{
     font-family: SanFrancisco;
 }
 
-h3 {
+#searchLabel {
     text-align: center;
+    color: black;
 }
 
 div.tooltip {   
