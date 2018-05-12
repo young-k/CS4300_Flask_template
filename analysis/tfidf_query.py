@@ -19,7 +19,7 @@ def find_keywords(data, n=10):
 
     for j, sample in enumerate(data):
         keywords = [vocab[j] for j in argsort[j, :n]]
-        sample['keywords'] = set(keywords)
+        sample['keywords'] = keywords
     return data, dt_matrix, vectorizer.vocabulary_
 
 
