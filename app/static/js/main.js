@@ -8,9 +8,18 @@ $(".more").toggle(function(){
 
 var $el, $ps, $up, totalHeight;
 $(document).ready(function(){
-	var list = true;
+	createResults();
+	var list;
+	if (recluster == true){
+		transition();
+		list = false;
+		d3.select("#transition").html("Rank Topics");
+	}
+	else{
+		list = true;
+	}
+	
 	$("#transition").click(function() {
-
 		if (list == true){
 			transition();
 			d3.select("#transition").html("Rank Topics");
@@ -26,7 +35,11 @@ $(document).ready(function(){
 	$("#recluster").click(function(){
 		keyword = encodeURIComponent(openedPost['keywords'][0]);
 		opinion = encodeURIComponent(openedPost['title']);
-		window.location.href = '/results?search='+keyword+"&opinion="+opinion;
+		link = keyword+"&opinion="+opinion;
+		if (list == false){
+			link += "&recluster=True";
+		}
+		window.location.href = '/results?search='+link;
 	});
 
 	$(".preview .button").click(function() {

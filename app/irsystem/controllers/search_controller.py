@@ -103,5 +103,6 @@ def search():
         opinion_coor = [float(embeds[-1, 0]), float(embeds[-1, 1])] if len(result) > 0 else None
         if statement == '':
             statement = "N/A"
+    recluster = request.args.get('recluster')
     return render_template('search.html', name=project_name, query=query, output_message=output_message, data=result, 
-                           opinion_coor=opinion_coor, statement=statement)
+                           opinion_coor=opinion_coor, statement=statement, recluster = recluster)

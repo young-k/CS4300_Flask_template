@@ -67,7 +67,15 @@
             var q = {{query|tojson}};
             var s = {{statement|tojson}};
             var opinion_coordinates = {{opinion_coor}};
+            var recluster = {{recluster|tojson}}
+            if (recluster == "True"){
+                recluster = true;
+            }
+            else{
+                recluster = false;
+            }
             console.log(views);
+            console.log(recluster);
         </script>
         <script type=text/javascript src="{{url_for('static', filename='js/getResults.js')}}"></script>
     </body>

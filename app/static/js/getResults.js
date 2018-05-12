@@ -1,6 +1,6 @@
 max = Object.keys(views).length;
 rows = max/3 + 1;
-var openedPost;
+var openedPost, groups;
 var width = window.innerWidth, height = 270*(max/3 + 1);
 
 var div = d3.select("body").append("div")	
@@ -44,6 +44,16 @@ d3.selection.prototype.moveToFront = function() {
       });
     };
 
+d3.selection.prototype.moveToBack = function() {  
+    return this.each(function() { 
+        var firstChild = this.parentNode.firstChild; 
+        if (firstChild) { 
+            this.parentNode.insertBefore(this, firstChild); 
+        } 
+    });
+};
+
+//Grid gives each result entry a coordinate that will be used when finding the correct placement in the SVG
 function grid(d){
 	iter = 0
 	for (var i = 0; i < rows; i++){
@@ -58,7 +68,7 @@ function grid(d){
 	return d;
 }
 
-//new transition function, have to make groups a global variable to access
+//transitioning from list view to cluster view
 function transition(){
 	var coords = []
 	var max = views.length;
@@ -69,9 +79,9 @@ function transition(){
 	coords = coords.concat(opinion_coordinates);
 	
 	var coordMax = Math.max(Math.abs(d3.max(coords)), Math.abs(d3.min(coords)));
-	var clusterPadding = Math.random()+0.5;
+	var clusterPadding = Math.random()+0.5; //unecessary now
 	var newX = d3.scaleLinear()
-		.range([200, width-200])
+		.range([150, width-150])
 		.domain([-1*coordMax-clusterPadding, coordMax+clusterPadding]);
 
 	var newY = d3.scaleLinear()
@@ -81,7 +91,7 @@ function transition(){
 	var xAxis = d3.svg.axis().scale(newX);
 	var yAxis = d3.svg.axis().scale(newY);
 
-	console.log("transitioning");
+	console.log("transitioning to cluster view");
 
 	var updateCircles = groups.selectAll("circle");
 	var updateTexts = groups.selectAll("text");
@@ -116,8 +126,8 @@ function transition(){
 
 			div.style("opacity", 0);	
 		});
-
-	if(s){
+	//If there is an opinion, then append the opinion circle
+	if(s != "N/A"){
 		var op = svg.append("circle").attr("fill-opacity", 0.0);
 		op.transition().duration(1200)
 			.attr("cx", newX(opinion_coordinates[0]))
@@ -146,10 +156,11 @@ function transition(){
 
 				div.style("opacity", 0);	
 		});;	
+		op.moveToBack();
 	}
-
 }
 
+//Transitioning from list biew to cluster view 
 function listView(){
 	svg.attr("height", 2700);
 	var updateCircles = groups.selectAll("circle");
@@ -172,14 +183,6 @@ function listView(){
 	.attr("id", function(d,i) {return "text-"+i;})
 	.attr("opacity", 0.0)
 	.style("font-size", "16px");
-	// .on("end", function(d,i){ 
-	// 	// console.log()
-	// 	// d3plus.textwrap()
-	// 	//   .container('text#text-'+i) 
-	// 	//   .valign("middle")
-	// 	//   .shape("circle")
-	// 	//   .draw();
-	// }); 
 
 	d3.select("#opinion-point").remove();
 
@@ -244,57 +247,56 @@ function openMod(d){
 	}
 }
 
-views = grid(views);
+function createResults(){
+	views = grid(views);
 
-var groups = svg.selectAll(".groups")
-    .data(views)
-    .enter()
-    .append("g")
-    .attr("class", "gbar")
-    .attr("data-toggle", "modal")
-    .attr("data-target", "#exampleModal")
-    .on("mouseover", function () {
-        // console.log('mouseover')
-    	var t = d3.select(this);
-    	t.select("circle").attr("stroke", "#656565");
-    	t.style("cursor", "pointer"); 
-    })
-    .on("mouseout", function () {
-    	d3.select(this).select("circle")
-    	.attr("stroke",  "#ddd");
-    })
-    .on("click", function(d) {
-		openMod(d);	
-		openedPost = d;
-	}); 
+	groups = svg.selectAll(".groups")
+	    .data(views)
+	    .enter()
+	    .append("g")
+	    .attr("class", "gbar")
+	    .attr("data-toggle", "modal")
+	    .attr("data-target", "#exampleModal")
+	    .on("mouseover", function () {
+	        // console.log('mouseover')
+	    	var t = d3.select(this);
+	    	t.select("circle").attr("stroke", "#656565");
+	    	t.style("cursor", "pointer"); 
+	    })
+	    .on("mouseout", function () {
+	    	d3.select(this).select("circle")
+	    	.attr("stroke",  "#ddd");
+	    })
+	    .on("click", function(d) {
+			openMod(d);	
+			openedPost = d;
+		}); 
 
-groups.append("circle")
-	.attr("cx", function(d, i) { return x(d['grid'][0]); })
-	.attr("cy", function(d, i) { return y(d['grid'][1]); })
-	.attr("r", 120)
-	.attr("fill", '#3D88B2')
-	.attr("fill-opacity", 0.5)
-	.attr("stroke", "#ddd")
-	.attr("stroke-width", 4)
-	.attr("id", function(d,i) {return "node-"+i;});
-	// .style("fill", "url(#result-gradient)"); 
+	groups.append("circle")
+		.attr("cx", function(d, i) { return x(d['grid'][0]); })
+		.attr("cy", function(d, i) { return y(d['grid'][1]); })
+		.attr("r", 120)
+		.attr("fill", '#3D88B2')
+		.attr("fill-opacity", 0.5)
+		.attr("stroke", "#ddd")
+		.attr("stroke-width", 4)
+		.attr("id", function(d,i) {return "node-"+i;});
 
-groups.append("text")
-	.attr("x", function(d, i) { return x(d['grid'][0])-75; })
-	.attr("y", function(d, i) { return y(d['grid'][1])-75; })
-	.attr("width", 150)
-	.attr("height", 150)
-	.style("font-size", "16px")
-	// .style("font-weight", "bold")
-	// .attr("fill", "#e2e2e2")
-	.text(function(d){return d['title']})
-	.attr("id", function(d,i) {return "text-"+i;}); 
+	groups.append("text")
+		.attr("x", function(d, i) { return x(d['grid'][0])-75; })
+		.attr("y", function(d, i) { return y(d['grid'][1])-75; })
+		.attr("width", 150)
+		.attr("height", 150)
+		.style("font-size", "16px")
+		.text(function(d){return d['title']})
+		.attr("id", function(d,i) {return "text-"+i;}); 
 
-for(var i = 0; i <id; i++){
-	d3plus.textwrap()
-	  .container('text#text-'+i) 
-	  .valign("middle")
-	  .shape("circle")
-	  .draw();
+	for(var i = 0; i <id; i++){
+		d3plus.textwrap()
+		  .container('text#text-'+i) 
+		  .valign("middle")
+		  .shape("circle")
+		  .draw();
+	}
 }
-// });
+
