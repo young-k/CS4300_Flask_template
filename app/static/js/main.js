@@ -23,8 +23,10 @@ $(document).ready(function(){
 		}
 	});
 
-	$(".read-more .button").click(function(){
-		console.log("read more clicked");
+	$("#recluster").click(function(){
+		keyword = encodeURIComponent(openedPost['keywords'][0]);
+		opinion = encodeURIComponent(openedPost['title']);
+		window.location.href = '/results?search='+keyword+"&opinion="+opinion;
 	});
 
 	$(".preview .button").click(function() {

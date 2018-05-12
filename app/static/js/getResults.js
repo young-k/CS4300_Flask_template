@@ -1,5 +1,6 @@
 max = Object.keys(views).length;
 rows = max/3 + 1;
+var openedPost;
 var width = window.innerWidth, height = 270*(max/3 + 1);
 
 var div = d3.select("body").append("div")	
@@ -20,6 +21,7 @@ var y = d3.scaleLinear()
 
 var defs = svg.append("defs");
 
+//Not used anymore
 defs.append("radialGradient")
 	.attr("id", "result-gradient")
 	.attr("cx", "50%")	//not really needed, since 50% is the default
@@ -262,7 +264,8 @@ var groups = svg.selectAll(".groups")
     	.attr("stroke",  "#ddd");
     })
     .on("click", function(d) {
-		openMod(d);		
+		openMod(d);	
+		openedPost = d;
 	}); 
 
 groups.append("circle")
